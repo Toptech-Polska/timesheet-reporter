@@ -91,7 +91,18 @@ export function ProportionStep({
         max_hours_per_day: wizardState.max_hours_per_day,
       };
       const newProposals = generateProposals(input);
+      const newEntries = distributeHours(
+        newProposals,
+        wizardState.working_days,
+        wizardState.max_hours_per_day
+      );
+      const newResult = calculateResult(
+        newProposals,
+        newEntries,
+        wizardState.target_amount
+      );
       setProposals(newProposals);
+      setAlgorithmResult(newResult);
       setError(null);
       return newProposals;
     } catch (err) {
@@ -216,8 +227,9 @@ export function ProportionStep({
     });
   }
 
-  const diff = algorithmResult?.amount_difference ?? 0;
-  const absDiff = Math.abs(diff);
+  const calculatedAmount = proposals.reduce((sum, p) => sum + p.amount_total, 0);
+  const difference = wizardState.target_amount - calculatedAmount;
+  const absDiff = Math.abs(difference);
 
   const inputCls =
     "w-full rounded-md border border-input bg-transparent px-3 py-1.5 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:opacity-50";
@@ -430,9 +442,9 @@ export function ProportionStep({
       </Section>
 
       {/* Difference alert */}
-      {algorithmResult && (
+      {proposals.length > 0 && (
         <DifferenceAlert
-          difference={diff}
+          difference={difference}
           absDifference={absDiff}
           correction={correction}
         />
@@ -487,17 +499,21 @@ function DifferenceAlert({
   absDifference: number;
   correction: ReturnType<typeof suggestCorrection>;
 }) {
-  if (absDifference < 1) return null;
+  if (absDifference === 0) {
+    return (
+      <div className="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3">
+        <CheckCircle className="size-4 text-green-600 shrink-0 mt-0.5" />
+        <p className="text-sm text-green-700">Suma zgodna z kwotą docelową</p>
+      </div>
+    );
+  }
 
-  const isAcceptable = !correction;
-
-  if (isAcceptable) {
+  if (absDifference <= 50) {
     return (
       <div className="flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3">
         <CheckCircle className="size-4 text-green-600 shrink-0 mt-0.5" />
         <p className="text-sm text-green-700">
-          Różnica {formatPLN(Math.abs(difference))} — akceptowalna (mniejsza niż
-          minimalny krok korekty)
+          Różnica {formatPLN(absDifference)} — akceptowalna
         </p>
       </div>
     );
@@ -508,9 +524,7 @@ function DifferenceAlert({
   return (
     <div
       className={`flex items-start gap-3 rounded-lg border px-4 py-3 ${
-        isPositive
-          ? "border-amber-200 bg-amber-50"
-          : "border-red-200 bg-red-50"
+        isPositive ? "border-amber-200 bg-amber-50" : "border-red-200 bg-red-50"
       }`}
     >
       <AlertTriangle
@@ -520,16 +534,16 @@ function DifferenceAlert({
       />
       <div className="text-sm space-y-1">
         <p className={isPositive ? "text-amber-700" : "text-red-700"}>
-          Różnica{" "}
-          {isPositive ? "+" : ""}
+          Różnica {isPositive ? "+" : ""}
           {formatPLN(difference)} —{" "}
-          {isPositive
-            ? "kwota jest za niska"
-            : "kwota jest za wysoka"}
-          .
+          {isPositive ? "za mało godzin" : "za dużo godzin"}.
         </p>
         {correction && (
-          <p className={`text-xs ${isPositive ? "text-amber-600" : "text-red-600"}`}>
+          <p
+            className={`text-xs ${
+              isPositive ? "text-amber-600" : "text-red-600"
+            }`}
+          >
             <Info className="inline size-3 mr-1" />
             Sugestia: {isPositive ? "dodaj" : "odejmij"} 0,5 h dla &bdquo;
             {correction.description}&rdquo; w{" "}
