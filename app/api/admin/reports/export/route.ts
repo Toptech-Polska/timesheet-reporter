@@ -76,7 +76,7 @@ export async function GET(req: Request) {
         work_date: e.work_date,
         day_of_week: e.day_of_week,
         week_number: e.week_number,
-        description: e.work_description,
+        description: e.description,
         category: e.category,
         hours: e.hours,
         hourly_rate: e.hourly_rate,
