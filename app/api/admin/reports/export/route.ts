@@ -4,6 +4,8 @@ import { isAdmin } from "@/lib/auth/roles";
 import { generateBulkXlsx, type ReportForBulkXlsx, type EntryForXlsx } from "@/lib/export/toXlsx";
 import { revalidatePath } from "next/cache";
 
+export const dynamic = "force-dynamic";
+
 const MONTHS_SAFE = [
   "styczen", "luty", "marzec", "kwiecien", "maj", "czerwiec",
   "lipiec", "sierpien", "wrzesien", "pazdziernik", "listopad", "grudzien",

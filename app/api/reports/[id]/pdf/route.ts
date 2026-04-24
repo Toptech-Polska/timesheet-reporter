@@ -2,6 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { generatePdf } from "@/lib/export/toPdf";
 import { revalidatePath } from "next/cache";
 
+export const dynamic = "force-dynamic";
+
 const MONTHS_SAFE = [
   "styczen", "luty", "marzec", "kwiecien", "maj", "czerwiec",
   "lipiec", "sierpien", "wrzesien", "pazdziernik", "listopad", "grudzien",
