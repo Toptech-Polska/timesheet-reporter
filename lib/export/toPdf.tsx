@@ -1,12 +1,40 @@
 import React from "react";
 import {
   Document,
+  Font,
   Page,
   View,
   Text,
   StyleSheet,
   renderToBuffer,
 } from "@react-pdf/renderer";
+
+const ROBOTO_REGULAR = "https://fonts.gstatic.com/s/roboto/v32/KFOmCnqEu92Fr1Mu4mxKKTU1Kvnz.ttf";
+const ROBOTO_BOLD    = "https://fonts.gstatic.com/s/roboto/v32/KFOlCnqEu92Fr1MmWUlfBBc4AMP6lbBP.ttf";
+const ROBOTO_ITALIC  = "https://fonts.gstatic.com/s/roboto/v32/KFOkCnqEu92Fr1Mu51xIIzc5Jd8.ttf";
+
+let fontRegistered = false;
+
+async function ensureFonts() {
+  if (fontRegistered) return;
+
+  const [regular, bold, italic] = await Promise.all([
+    fetch(ROBOTO_REGULAR).then((r) => r.arrayBuffer()),
+    fetch(ROBOTO_BOLD).then((r) => r.arrayBuffer()),
+    fetch(ROBOTO_ITALIC).then((r) => r.arrayBuffer()),
+  ]);
+
+  Font.register({
+    family: "Roboto",
+    fonts: [
+      { src: Buffer.from(regular) as unknown as string },
+      { src: Buffer.from(bold) as unknown as string, fontWeight: 700 },
+      { src: Buffer.from(italic) as unknown as string, fontStyle: "italic" },
+    ],
+  });
+
+  fontRegistered = true;
+}
 
 const MONTHS_PL = [
   "Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec",
@@ -93,7 +121,7 @@ function str(v: unknown): string {
 
 const styles = StyleSheet.create({
   page: {
-    fontFamily: "Helvetica",
+    fontFamily: "Roboto",
     fontSize: 8,
     paddingTop: "20mm",
     paddingBottom: "18mm",
@@ -102,14 +130,14 @@ const styles = StyleSheet.create({
     backgroundColor: "#ffffff",
   },
   headerRow: { flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "5mm" },
-  titleText: { fontFamily: "Helvetica-Bold", fontSize: 18, color: "#0f172a" },
+  titleText: { fontFamily: "Roboto", fontWeight: 700, fontSize: 18, color: "#0f172a" },
   subtitleText: { fontSize: 9, color: "#475569", marginTop: "1mm" },
   invoiceText: { fontSize: 9, color: "#475569", textAlign: "right" },
   divider: { borderBottom: "1pt", borderBottomColor: "#e2e8f0", marginBottom: "4mm" },
   companiesRow: { flexDirection: "row", marginBottom: "5mm" },
   companyCol: { flex: 1 },
-  companyLabel: { fontFamily: "Helvetica-Bold", fontSize: 7, color: "#94a3b8", marginBottom: "1.5mm", textTransform: "uppercase" },
-  companyName: { fontFamily: "Helvetica-Bold", fontSize: 8, color: "#1e293b", marginBottom: "0.5mm" },
+  companyLabel: { fontFamily: "Roboto", fontWeight: 700, fontSize: 7, color: "#94a3b8", marginBottom: "1.5mm", textTransform: "uppercase" },
+  companyName: { fontFamily: "Roboto", fontWeight: 700, fontSize: 8, color: "#1e293b", marginBottom: "0.5mm" },
   companyDetail: { fontSize: 7.5, color: "#475569", marginBottom: "0.3mm" },
   tableHeaderRow: { flexDirection: "row", backgroundColor: "#f3f4f6" },
   tableRow: { flexDirection: "row" },
@@ -124,11 +152,11 @@ const styles = StyleSheet.create({
   cellHours: { width: "14mm", padding: "1.5mm 2mm", textAlign: "right", borderRight: "0.3pt", borderRightColor: "#e5e7eb" },
   cellAmount: { width: "28mm", padding: "1.5mm 2mm", textAlign: "right" },
   cellMerged: { flex: 1, padding: "1.5mm 2mm" },
-  thText: { fontFamily: "Helvetica-Bold", fontSize: 7.5, color: "#374151" },
+  thText: { fontFamily: "Roboto", fontWeight: 700, fontSize: 7.5, color: "#374151" },
   tdText: { fontSize: 7.5, color: "#334155" },
-  daySumText: { fontFamily: "Helvetica-Oblique", fontSize: 7.5, color: "#4b5563" },
-  weekSumText: { fontFamily: "Helvetica-Bold", fontSize: 7.5, color: "#1f2937" },
-  monthSumText: { fontFamily: "Helvetica-Bold", fontSize: 8.5, color: "#ffffff" },
+  daySumText: { fontFamily: "Roboto", fontStyle: "italic", fontSize: 7.5, color: "#4b5563" },
+  weekSumText: { fontFamily: "Roboto", fontWeight: 700, fontSize: 7.5, color: "#1f2937" },
+  monthSumText: { fontFamily: "Roboto", fontWeight: 700, fontSize: 8.5, color: "#ffffff" },
   footer: { position: "absolute", bottom: "8mm", left: "20mm", right: "20mm", flexDirection: "row", justifyContent: "space-between" },
   footerText: { fontSize: 7, color: "#9ca3af" },
 });
@@ -292,6 +320,7 @@ export async function generatePdf(
   report: ReportForPdf,
   entries: EntryForPdf[]
 ): Promise<Buffer> {
+  await ensureFonts();
   const buf = await renderToBuffer(<ReportDocument report={report} entries={entries} />);
   return buf as Buffer;
 }
