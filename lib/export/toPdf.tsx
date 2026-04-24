@@ -15,21 +15,15 @@ const ROBOTO_ITALIC  = "https://fonts.gstatic.com/s/roboto/v32/KFOkCnqEu92Fr1Mu5
 
 let fontRegistered = false;
 
-async function ensureFonts() {
+function ensureFonts() {
   if (fontRegistered) return;
-
-  const [regular, bold, italic] = await Promise.all([
-    fetch(ROBOTO_REGULAR).then((r) => r.arrayBuffer()),
-    fetch(ROBOTO_BOLD).then((r) => r.arrayBuffer()),
-    fetch(ROBOTO_ITALIC).then((r) => r.arrayBuffer()),
-  ]);
 
   Font.register({
     family: "Roboto",
     fonts: [
-      { src: Buffer.from(regular) as unknown as string },
-      { src: Buffer.from(bold) as unknown as string, fontWeight: 700 },
-      { src: Buffer.from(italic) as unknown as string, fontStyle: "italic" },
+      { src: ROBOTO_REGULAR },
+      { src: ROBOTO_BOLD, fontWeight: 700 },
+      { src: ROBOTO_ITALIC, fontStyle: "italic" },
     ],
   });
 
@@ -320,7 +314,7 @@ export async function generatePdf(
   report: ReportForPdf,
   entries: EntryForPdf[]
 ): Promise<Buffer> {
-  await ensureFonts();
+  ensureFonts();
   const buf = await renderToBuffer(<ReportDocument report={report} entries={entries} />);
   return buf as Buffer;
 }
