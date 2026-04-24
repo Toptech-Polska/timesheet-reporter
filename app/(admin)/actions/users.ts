@@ -77,3 +77,36 @@ export async function toggleUserActive(
     return { success: false, error: "Wystąpił nieoczekiwany błąd." };
   }
 }
+
+export async function updateUserDriveFolder(
+  targetUserId: string,
+  folderId: string | null,
+  folderName: string | null
+): Promise<ActionResult> {
+  try {
+    const { supabase } = await getAdminSupabase();
+    if (!supabase) return { success: false, error: "Brak uprawnień" };
+
+    const { error } = await supabase
+      .schema("timesheet")
+      .from("profiles")
+      .update({
+        google_drive_folder_id: folderId || null,
+        google_drive_folder_name: folderName || null,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", targetUserId);
+
+    if (error) {
+      console.error("updateUserDriveFolder error:", error);
+      return { success: false, error: "Nie udało się zaktualizować folderu." };
+    }
+
+    revalidatePath(`/admin/uzytkownicy/${targetUserId}`);
+    revalidatePath("/admin/uzytkownicy");
+    return { success: true };
+  } catch (e) {
+    console.error("updateUserDriveFolder exception:", e);
+    return { success: false, error: "Wystąpił nieoczekiwany błąd." };
+  }
+}

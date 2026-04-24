@@ -3,11 +3,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { generatePdf } from "@/lib/export/toPdf";
 
-const MONTHS_SAFE = [
-  "styczen", "luty", "marzec", "kwiecien", "maj", "czerwiec",
-  "lipiec", "sierpien", "wrzesien", "pazdziernik", "listopad", "grudzien",
-];
-
 export type DriveUploadResult =
   | { fileUrl: string }
   | { error: "reauth" | "no_folder" | string };
@@ -30,14 +25,14 @@ export async function uploadPdfToGoogleDrive(
   const googleToken = session?.provider_token;
   if (!googleToken) return { error: "reauth" };
 
-  const { data: settings } = await supabase
+  const { data: profile } = await supabase
     .schema("timesheet")
-    .from("app_settings")
-    .select("google_drive_folder_id")
-    .eq("id", 1)
+    .from("profiles")
+    .select("google_drive_folder_id, contractor_name")
+    .eq("id", user.id)
     .single();
 
-  const folderId = settings?.google_drive_folder_id as string | null;
+  const folderId = profile?.google_drive_folder_id as string | null;
   if (!folderId) return { error: "no_folder" };
 
   const { data: report } = await supabase
@@ -83,13 +78,12 @@ export async function uploadPdfToGoogleDrive(
     entries
   );
 
-  const contractorName = (report.contractor_snapshot as Record<string, unknown>)
-    ?.contractor_name as string | undefined;
-  const month = MONTHS_SAFE[report.period_month - 1];
+  const contractorName = (profile?.contractor_name as string | undefined) ?? "";
   const namePart = contractorName
     ? `-${contractorName.toLowerCase().replace(/\s+/g, "-")}`
     : "";
-  const filename = `timesheet-${month}-${report.period_year}${namePart}.pdf`;
+  const month = String(report.period_month).padStart(2, "0");
+  const filename = `timesheet-${report.period_year}-${month}${namePart}.pdf`;
 
   const boundary = "ts_pdf_boundary_xR9k";
   const metadata = JSON.stringify({

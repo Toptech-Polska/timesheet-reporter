@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { ProfileForm } from "./_profile-form";
 import { PasswordForm } from "./_password-form";
-import { Globe, Mail, MapPin, Building2, Hash } from "lucide-react";
+import { Globe, Mail, MapPin, Building2, Hash, FolderOpen } from "lucide-react";
 
 export default async function ProfilPage() {
   const supabase = await createClient();
@@ -13,7 +13,7 @@ export default async function ProfilPage() {
     supabase
       .schema("timesheet")
       .from("profiles")
-      .select("*")
+      .select("*, google_drive_folder_id, google_drive_folder_name")
       .eq("id", user!.id)
       .maybeSingle(),
     supabase
@@ -49,7 +49,34 @@ export default async function ProfilPage() {
         </div>
       </div>
 
-      {/* Sekcja B — Zmiana hasła */}
+      {/* Sekcja B — Google Drive */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
+          <FolderOpen className="size-4 text-slate-400" />
+          <div>
+            <h2 className="text-base font-semibold text-slate-900">
+              Google Drive
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Folder na raporty przypisany przez administratora
+            </p>
+          </div>
+        </div>
+        <div className="px-6 py-5">
+          {profile?.google_drive_folder_name ? (
+            <p className="text-sm text-slate-700">
+              Twój folder raportów na Google Drive:{" "}
+              <span className="font-medium">{profile.google_drive_folder_name}</span>
+            </p>
+          ) : (
+            <p className="text-sm text-slate-400 italic">
+              Folder Google Drive nie został jeszcze przypisany przez administratora.
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Sekcja C — Zmiana hasła */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
         <div className="px-6 py-4 border-b border-slate-100">
           <h2 className="text-base font-semibold text-slate-900">Zmiana hasła</h2>
@@ -62,7 +89,7 @@ export default async function ProfilPage() {
         </div>
       </div>
 
-      {/* Sekcja C — Dane zleceniodawcy */}
+      {/* Sekcja D — Dane zleceniodawcy */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
           <div>
