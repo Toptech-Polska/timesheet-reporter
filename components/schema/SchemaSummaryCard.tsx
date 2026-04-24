@@ -11,7 +11,7 @@ import { archiveSchema, duplicateSchema } from "@/app/actions/schemas";
 import { formatDatePL } from "@/lib/utils/dates";
 import { cn } from "@/lib/utils";
 
-const DAY_LABELS: Record<number, string> = { 1: "Pn", 2: "Wt", 3: "Śr", 4: "Czw", 5: "Pt" };
+const DAY_LABELS: Record<number, string> = { 1: "Pn", 2: "Wt", 3: "Śr", 4: "Czw", 5: "Pt", 6: "Sb", 7: "Nd" };
 
 export interface SchemaSummaryData {
   id: string;
@@ -109,7 +109,7 @@ export function SchemaSummaryCard({ schema }: { schema: SchemaSummaryData }) {
 
         {/* Days */}
         <div className="flex gap-1 mt-3">
-          {[1, 2, 3, 4, 5].map((d) => (
+          {[1, 2, 3, 4, 5, 6, 7].map((d) => (
             <span
               key={d}
               className={cn(
