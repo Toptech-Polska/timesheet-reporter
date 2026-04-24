@@ -24,6 +24,8 @@ const schema = z.object({
     })
     .optional(),
   client_website: z.string().optional(),
+  google_drive_folder_id: z.string().optional(),
+  google_drive_folder_name: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -34,6 +36,8 @@ interface AppSettings {
   client_address: string | null;
   client_email: string | null;
   client_website: string | null;
+  google_drive_folder_id: string | null;
+  google_drive_folder_name: string | null;
 }
 
 export function SettingsForm({ settings }: { settings: AppSettings | null }) {
@@ -52,6 +56,8 @@ export function SettingsForm({ settings }: { settings: AppSettings | null }) {
       client_address: settings?.client_address ?? "",
       client_email: settings?.client_email ?? "",
       client_website: settings?.client_website ?? "",
+      google_drive_folder_id: settings?.google_drive_folder_id ?? "",
+      google_drive_folder_name: settings?.google_drive_folder_name ?? "",
     },
   });
 
@@ -62,10 +68,12 @@ export function SettingsForm({ settings }: { settings: AppSettings | null }) {
       client_address: values.client_address,
       client_email: values.client_email || null,
       client_website: values.client_website || null,
+      google_drive_folder_id: values.google_drive_folder_id || null,
+      google_drive_folder_name: values.google_drive_folder_name || null,
     });
 
     if (result.success) {
-      showToast("Dane zleceniodawcy zostały zaktualizowane", "success");
+      showToast("Dane zostały zaktualizowane", "success");
     } else {
       showToast(result.error ?? "Wystąpił błąd", "error");
     }
@@ -157,6 +165,37 @@ export function SettingsForm({ settings }: { settings: AppSettings | null }) {
             placeholder="https://www.firma.pl"
             {...register("client_website")}
           />
+        </div>
+      </div>
+
+      <div className="border-t border-slate-100 pt-5 space-y-4">
+        <div>
+          <h3 className="text-sm font-semibold text-slate-900">Integracja Google Drive</h3>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Pliki PDF będą zapisywane we wskazanym folderze
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="google_drive_folder_id">ID folderu Google Drive</Label>
+            <Input
+              id="google_drive_folder_id"
+              placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms"
+              {...register("google_drive_folder_id")}
+            />
+            <p className="text-xs text-slate-400">
+              Znajdź ID w URL:{" "}
+              <span className="font-mono">drive.google.com/drive/folders/<strong>[TO_JEST_ID]</strong></span>
+            </p>
+          </div>
+          <div className="space-y-1.5 sm:col-span-2">
+            <Label htmlFor="google_drive_folder_name">Nazwa folderu (informacyjna)</Label>
+            <Input
+              id="google_drive_folder_name"
+              placeholder="np. Timesheety 2026"
+              {...register("google_drive_folder_name")}
+            />
+          </div>
         </div>
       </div>
 

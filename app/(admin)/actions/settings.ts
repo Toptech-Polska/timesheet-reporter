@@ -9,6 +9,8 @@ export interface SettingsData {
   client_address: string;
   client_email: string | null;
   client_website: string | null;
+  google_drive_folder_id: string | null;
+  google_drive_folder_name: string | null;
 }
 
 export interface ActionResult {
@@ -42,6 +44,8 @@ export async function updateSettings(data: SettingsData): Promise<ActionResult> 
         client_address: data.client_address,
         client_email: data.client_email || null,
         client_website: data.client_website || null,
+        google_drive_folder_id: data.google_drive_folder_id || null,
+        google_drive_folder_name: data.google_drive_folder_name || null,
         updated_at: new Date().toISOString(),
         updated_by: user.id,
       })

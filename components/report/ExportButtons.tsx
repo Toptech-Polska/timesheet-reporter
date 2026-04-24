@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Download } from "lucide-react";
+import { Download, CloudUpload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
+import { uploadPdfToGoogleDrive } from "@/app/actions/googleDrive";
 
 export function ExportButtons({ reportId }: { reportId: string }) {
   const [loadingPdf, setLoadingPdf] = useState(false);
   const [loadingXlsx, setLoadingXlsx] = useState(false);
+  const [loadingDrive, setLoadingDrive] = useState(false);
   const { showToast } = useToast();
 
   async function handleExport(format: "pdf" | "xlsx") {
@@ -38,15 +40,61 @@ export function ExportButtons({ reportId }: { reportId: string }) {
     }
   }
 
+  async function handleDriveUpload() {
+    setLoadingDrive(true);
+    try {
+      const result = await uploadPdfToGoogleDrive(reportId);
+      if ("fileUrl" in result) {
+        showToast("Zapisano w Google Drive", "success");
+        window.open(result.fileUrl, "_blank");
+      } else if (result.error === "reauth") {
+        showToast(
+          "Zaloguj się ponownie aby udzielić dostępu do Google Drive",
+          "error"
+        );
+      } else if (result.error === "no_folder") {
+        showToast(
+          "Skonfiguruj folder Google Drive w ustawieniach administratora",
+          "error"
+        );
+      } else {
+        showToast(result.error ?? "Błąd przesyłania", "error");
+      }
+    } catch {
+      showToast("Nie udało się przesłać pliku.", "error");
+    } finally {
+      setLoadingDrive(false);
+    }
+  }
+
   return (
     <div className="flex gap-2">
-      <Button variant="outline" size="sm" onClick={() => handleExport("pdf")} disabled={loadingPdf}>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => handleExport("pdf")}
+        disabled={loadingPdf}
+      >
         <Download className="size-4 mr-1.5" />
         {loadingPdf ? "Generuję..." : "↓ PDF"}
       </Button>
-      <Button variant="outline" size="sm" onClick={() => handleExport("xlsx")} disabled={loadingXlsx}>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => handleExport("xlsx")}
+        disabled={loadingXlsx}
+      >
         <Download className="size-4 mr-1.5" />
         {loadingXlsx ? "Generuję..." : "↓ Excel"}
+      </Button>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleDriveUpload}
+        disabled={loadingDrive}
+      >
+        <CloudUpload className="size-4 mr-1.5" />
+        {loadingDrive ? "Wysyłanie..." : "↑ Google Drive"}
       </Button>
     </div>
   );

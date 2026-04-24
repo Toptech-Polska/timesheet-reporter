@@ -95,6 +95,8 @@ const DAY_LABELS: Record<number, string> = {
   3: "Śr",
   4: "Czw",
   5: "Pt",
+  6: "Sb",
+  7: "Nd",
 };
 
 // ── Props ──────────────────────────────────────────────────────────────────
@@ -266,7 +268,7 @@ export function SchemaForm({
               Dni robocze <span className="text-red-500">*</span>
             </Label>
             <div className="flex gap-2 flex-wrap">
-              {[1, 2, 3, 4, 5].map((day) => {
+              {[1, 2, 3, 4, 5, 6, 7].map((day) => {
                 const active = watchedDays.includes(day);
                 return (
                   <button
