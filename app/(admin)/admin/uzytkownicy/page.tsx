@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { UsersTable, type UserRow } from "./_users-table";
+import { AllowedEmailsSection, type AllowedEmailRow } from "./_allowed-emails";
 
 export default async function UzytkownicyPage() {
   const supabase = await createClient();
@@ -9,16 +10,23 @@ export default async function UzytkownicyPage() {
   } = await supabase.auth.getUser();
 
   let users: UserRow[] = [];
+  let allowedEmails: AllowedEmailRow[] = [];
   let fetchError: string | null = null;
 
   try {
     const adminClient = createAdminClient();
 
-    const [authResult, profilesResult, rolesResult] = await Promise.all([
-      adminClient.auth.admin.listUsers({ perPage: 1000 }),
-      supabase.schema("timesheet").from("profiles").select("*"),
-      supabase.schema("timesheet").from("user_roles").select("*"),
-    ]);
+    const [authResult, profilesResult, rolesResult, allowedResult] =
+      await Promise.all([
+        adminClient.auth.admin.listUsers({ perPage: 1000 }),
+        supabase.schema("timesheet").from("profiles").select("*"),
+        supabase.schema("timesheet").from("user_roles").select("*"),
+        supabase
+          .schema("timesheet")
+          .from("allowed_emails")
+          .select("email, note, added_at")
+          .order("added_at", { ascending: true }),
+      ]);
 
     if (authResult.error) throw authResult.error;
 
@@ -44,6 +52,8 @@ export default async function UzytkownicyPage() {
         created_at: authUser.created_at,
       };
     });
+
+    allowedEmails = (allowedResult.data ?? []) as AllowedEmailRow[];
   } catch (e) {
     console.error("UzytkownicyPage fetch error:", e);
     fetchError =
@@ -59,6 +69,13 @@ export default async function UzytkownicyPage() {
         <p className="text-sm text-slate-500 mt-1">
           Zarządzanie kontami i uprawnieniami
         </p>
+      </div>
+
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <AllowedEmailsSection
+          allowedEmails={allowedEmails}
+          currentUserEmail={currentUser?.email ?? ""}
+        />
       </div>
 
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
