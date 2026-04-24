@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ConfirmDialog } from "@/components/ui/dialog";
@@ -220,6 +221,11 @@ export function UsersTable({
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-2">
+                        <Link href={`/admin/uzytkownicy/${user.id}`}>
+                          <Button variant="outline" size="sm" className="text-xs h-7 px-2.5">
+                            Podgląd
+                          </Button>
+                        </Link>
                         <Button
                           variant="outline"
                           size="sm"

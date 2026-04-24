@@ -121,8 +121,7 @@ export async function deleteReport(id: string): Promise<{ error?: string }> {
       .from("reports")
       .delete()
       .eq("id", id)
-      .eq("user_id", user.id)
-      .eq("status", "draft");
+      .eq("user_id", user.id);
 
     if (error) {
       console.error("deleteReport:", error);
@@ -150,8 +149,7 @@ export async function approveReport(id: string): Promise<{ error?: string }> {
       .from("reports")
       .update({ status: "approved", approved_at: new Date().toISOString() })
       .eq("id", id)
-      .eq("user_id", user.id)
-      .eq("status", "draft");
+      .eq("user_id", user.id);
 
     if (error) {
       console.error("approveReport:", error);
@@ -217,7 +215,6 @@ export async function updateReportEntries(
       .select("id, target_amount")
       .eq("id", reportId)
       .eq("user_id", user.id)
-      .eq("status", "draft")
       .maybeSingle();
 
     if (!report) return { error: "Raport nie istnieje lub nie można go edytować." };
@@ -262,7 +259,7 @@ export async function updateReportEntries(
     await supabase
       .schema("timesheet")
       .from("reports")
-      .update({ calculated_amount, amount_difference })
+      .update({ calculated_amount, amount_difference, status: "draft" })
       .eq("id", reportId);
 
     revalidatePath(`/raporty/${reportId}`);

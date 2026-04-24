@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Edit2, CheckCircle, Trash2, Eye, FileText } from "lucide-react";
+import { Edit2, CheckCircle, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/dialog";
 import { ExportButtons } from "@/components/report/ExportButtons";
@@ -42,6 +42,7 @@ export function ReportCard({ report }: { report: ReportItem }) {
   const monthName = MONTHS_PL[report.period_month - 1];
   const absDiff = Math.abs(report.amount_difference ?? 0);
   const hasDiff = absDiff > 1;
+  const isNonDraft = report.status === "approved" || report.status === "exported";
 
   function handleDelete() {
     startDelete(async () => {
@@ -110,54 +111,36 @@ export function ReportCard({ report }: { report: ReportItem }) {
 
         {/* Prawa kolumna — przyciski */}
         <div className="flex flex-wrap gap-2 shrink-0">
+          <Link href={`/raporty/${report.id}`}>
+            <Button variant="outline" size="sm">
+              <Edit2 className="size-3.5 mr-1" />
+              Edytuj
+            </Button>
+          </Link>
+
           {report.status === "draft" && (
-            <>
-              <Link href={`/raporty/${report.id}`}>
-                <Button variant="outline" size="sm">
-                  <Edit2 className="size-3.5 mr-1" />
-                  Edytuj
-                </Button>
-              </Link>
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-green-300 text-green-700 hover:bg-green-50"
-                onClick={() => setShowApproveDialog(true)}
-              >
-                <CheckCircle className="size-3.5 mr-1" />
-                Zatwierdź
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-red-200 text-red-600 hover:bg-red-50"
-                onClick={() => setShowDeleteDialog(true)}
-              >
-                <Trash2 className="size-3.5 mr-1" />
-                Usuń
-              </Button>
-            </>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-green-300 text-green-700 hover:bg-green-50"
+              onClick={() => setShowApproveDialog(true)}
+            >
+              <CheckCircle className="size-3.5 mr-1" />
+              Zatwierdź
+            </Button>
           )}
 
-          {(report.status === "approved" || report.status === "exported") && (
-            <>
-              <Link href={`/raporty/${report.id}`}>
-                <Button variant="outline" size="sm">
-                  <Eye className="size-3.5 mr-1" />
-                  Podgląd
-                </Button>
-              </Link>
-              <ExportButtons reportId={report.id} />
-              {report.status === "approved" && !report.invoice_number && (
-                <Link href={`/raporty/${report.id}`}>
-                  <Button variant="outline" size="sm">
-                    <FileText className="size-3.5 mr-1" />
-                    Nr faktury
-                  </Button>
-                </Link>
-              )}
-            </>
-          )}
+          {isNonDraft && <ExportButtons reportId={report.id} />}
+
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-red-200 text-red-600 hover:bg-red-50"
+            onClick={() => setShowDeleteDialog(true)}
+          >
+            <Trash2 className="size-3.5 mr-1" />
+            Usuń
+          </Button>
         </div>
       </div>
 
@@ -165,7 +148,11 @@ export function ReportCard({ report }: { report: ReportItem }) {
         open={showDeleteDialog}
         onOpenChange={setShowDeleteDialog}
         title="Usuń raport"
-        description={`Czy na pewno chcesz usunąć raport „Time Sheet — ${monthName} ${report.period_year}"? Tej operacji nie można cofnąć.`}
+        description={
+          isNonDraft
+            ? `Raport „Time Sheet — ${monthName} ${report.period_year}" jest ${report.status === "approved" ? "zatwierdzony" : "wyeksportowany"}. Czy na pewno chcesz go usunąć? Tej operacji nie można cofnąć.`
+            : `Czy na pewno chcesz usunąć raport „Time Sheet — ${monthName} ${report.period_year}"? Tej operacji nie można cofnąć.`
+        }
         confirmLabel="Usuń"
         cancelLabel="Anuluj"
         confirmVariant="destructive"
@@ -177,7 +164,7 @@ export function ReportCard({ report }: { report: ReportItem }) {
         open={showApproveDialog}
         onOpenChange={setShowApproveDialog}
         title="Zatwierdź raport"
-        description="Po zatwierdzeniu raport przejdzie w tryb tylko-odczyt. Czy chcesz kontynuować?"
+        description="Czy na pewno chcesz zatwierdzić raport? Zawsze możesz go edytować lub cofnąć do wersji roboczej."
         confirmLabel="Zatwierdź"
         cancelLabel="Anuluj"
         onConfirm={handleApprove}

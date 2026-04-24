@@ -4,7 +4,6 @@ import { createClient } from "@/lib/supabase/server";
 import type { EditableEntry } from "@/components/generator/types";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { ReportEditView } from "./_components/ReportEditView";
-import { ReportReadView } from "./_components/ReportReadView";
 
 const MONTHS_PL = [
   "Styczeń", "Luty", "Marzec", "Kwiecień", "Maj", "Czerwiec",
@@ -88,32 +87,10 @@ export default async function ReportDetailPage({
     />
   );
 
-  if (report.status === "draft") {
-    return (
-      <div className="space-y-4">
-        {breadcrumbs}
-        <ReportEditView
-          report={{
-            id: report.id,
-            period_month: report.period_month,
-            period_year: report.period_year,
-            target_amount: report.target_amount,
-            calculated_amount: report.calculated_amount,
-            amount_difference: report.amount_difference,
-            invoice_number: report.invoice_number ?? null,
-            contractor_snapshot: report.contractor_snapshot ?? {},
-            client_snapshot: report.client_snapshot ?? {},
-          }}
-          initialEntries={entries}
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-4">
       {breadcrumbs}
-      <ReportReadView
+      <ReportEditView
         report={{
           id: report.id,
           period_month: report.period_month,
@@ -121,12 +98,12 @@ export default async function ReportDetailPage({
           target_amount: report.target_amount,
           calculated_amount: report.calculated_amount,
           amount_difference: report.amount_difference,
-          status: report.status as "approved" | "exported",
+          status: report.status as "draft" | "approved" | "exported",
           invoice_number: report.invoice_number ?? null,
           contractor_snapshot: report.contractor_snapshot ?? {},
           client_snapshot: report.client_snapshot ?? {},
         }}
-        entries={entries}
+        initialEntries={entries}
         savedBanner={searchParams.saved}
       />
     </div>

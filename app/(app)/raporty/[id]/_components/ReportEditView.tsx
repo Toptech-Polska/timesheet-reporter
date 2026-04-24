@@ -3,11 +3,12 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Save, CheckCircle } from "lucide-react";
+import { ArrowLeft, Save, CheckCircle, FileText, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/dialog";
 import { ReportHeader } from "@/components/report/ReportHeader";
 import { ReportTable } from "@/components/report/ReportTable";
+import { ExportButtons } from "@/components/report/ExportButtons";
 import { useToast } from "@/components/ui/toast";
 import { approveReport, updateReportEntries } from "@/app/actions/reports";
 import type { EditableEntry } from "@/components/generator/types";
@@ -19,6 +20,7 @@ interface Report {
   target_amount: number;
   calculated_amount: number;
   amount_difference: number;
+  status: "draft" | "approved" | "exported";
   invoice_number: string | null;
   contractor_snapshot: Record<string, unknown>;
   client_snapshot: Record<string, unknown>;
@@ -27,15 +29,20 @@ interface Report {
 interface Props {
   report: Report;
   initialEntries: EditableEntry[];
+  savedBanner?: string;
 }
 
-export function ReportEditView({ report, initialEntries }: Props) {
+export function ReportEditView({ report, initialEntries, savedBanner }: Props) {
   const [entries, setEntries] = useState<EditableEntry[]>(initialEntries);
+  const [currentStatus, setCurrentStatus] = useState(report.status);
   const [showApproveDialog, setShowApproveDialog] = useState(false);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [isSaving, startSaving] = useTransition();
   const [isApproving, startApproving] = useTransition();
   const { showToast } = useToast();
   const router = useRouter();
+
+  const isApprovedOrExported = currentStatus === "approved" || currentStatus === "exported";
 
   function handleUpdateEntry(
     index: number,
@@ -54,13 +61,28 @@ export function ReportEditView({ report, initialEntries }: Props) {
   }
 
   function handleSave() {
+    if (isApprovedOrExported) {
+      setShowSaveDialog(true);
+    } else {
+      doSave();
+    }
+  }
+
+  function doSave() {
+    const wasApprovedOrExported = currentStatus !== "draft";
     startSaving(async () => {
       const result = await updateReportEntries(report.id, entries);
       if (result.error) {
         showToast(result.error, "error");
       } else {
-        showToast("Zmiany zapisane", "success");
+        if (wasApprovedOrExported) {
+          setCurrentStatus("draft");
+          showToast("Zmiany zapisane. Raport wymaga ponownego zatwierdzenia.", "success");
+        } else {
+          showToast("Zmiany zapisane", "success");
+        }
       }
+      setShowSaveDialog(false);
     });
   }
 
@@ -84,6 +106,32 @@ export function ReportEditView({ report, initialEntries }: Props) {
 
   return (
     <div className="space-y-4">
+      {/* Baner po zatwierdzeniu */}
+      {savedBanner === "approved" && (
+        <div className="flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 px-5 py-4">
+          <FileText className="size-5 shrink-0 mt-0.5 text-green-600" />
+          <div>
+            <p className="font-semibold text-green-800">Raport zatwierdzony</p>
+            <p className="text-sm mt-0.5 text-green-600">
+              Raport został zatwierdzony i zapisany w systemie.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Baner ostrzeżenie (edycja zatwierdzonego) */}
+      {isApprovedOrExported && savedBanner !== "approved" && (
+        <div className="flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 px-5 py-4">
+          <AlertTriangle className="size-5 shrink-0 mt-0.5 text-amber-500" />
+          <div>
+            <p className="font-semibold text-amber-800">Edytujesz zatwierdzony raport</p>
+            <p className="text-sm mt-0.5 text-amber-700">
+              Zapisanie zmian cofnie status raportu do wersji roboczej i będzie wymagało ponownego zatwierdzenia.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Pasek górny */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <Link href="/raporty">
@@ -92,7 +140,8 @@ export function ReportEditView({ report, initialEntries }: Props) {
             Wróć
           </Button>
         </Link>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap items-center">
+          {isApprovedOrExported && <ExportButtons reportId={report.id} />}
           <Button
             variant="outline"
             size="sm"
@@ -132,10 +181,25 @@ export function ReportEditView({ report, initialEntries }: Props) {
       </div>
 
       <ConfirmDialog
+        open={showSaveDialog}
+        onOpenChange={setShowSaveDialog}
+        title="Zapisz zmiany"
+        description="Raport jest zatwierdzony. Zapisanie zmian cofnie go do wersji roboczej i będzie wymagało ponownego zatwierdzenia. Czy chcesz kontynuować?"
+        confirmLabel="Zapisz"
+        cancelLabel="Anuluj"
+        onConfirm={doSave}
+        loading={isSaving}
+      />
+
+      <ConfirmDialog
         open={showApproveDialog}
         onOpenChange={setShowApproveDialog}
         title="Zatwierdź raport"
-        description="Po zatwierdzeniu raport przejdzie w tryb tylko-odczyt i nie będzie można go edytować. Czy na pewno chcesz zatwierdzić?"
+        description={
+          isApprovedOrExported
+            ? "Raport zostanie ponownie zatwierdzony z bieżącymi wpisami. Czy chcesz kontynuować?"
+            : "Czy na pewno chcesz zatwierdzić raport? Zawsze możesz go edytować lub cofnąć do wersji roboczej."
+        }
         confirmLabel="Zatwierdź"
         cancelLabel="Anuluj"
         onConfirm={handleApprove}
