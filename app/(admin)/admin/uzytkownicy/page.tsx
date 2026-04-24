@@ -21,7 +21,7 @@ export default async function UzytkownicyPage() {
         adminClient.auth.admin.listUsers({ perPage: 1000 }),
         supabase.schema("timesheet").from("profiles").select("*"),
         supabase.schema("timesheet").from("user_roles").select("*"),
-        supabase
+        adminClient
           .schema("timesheet")
           .from("allowed_emails")
           .select("email, note, added_at")
