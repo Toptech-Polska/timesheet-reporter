@@ -227,6 +227,63 @@ export async function archiveSchema(id: string): Promise<ActionResult> {
   }
 }
 
+export async function addWorkItemToSchema(
+  schemaId: string,
+  item: {
+    description: string;
+    category: string;
+    hourly_rate: number;
+    proportion: number;
+  }
+): Promise<{ success: true } | { error: string }> {
+  try {
+    const { supabase, user } = await getAuthUser();
+    if (!user) return { error: "Brak autoryzacji" };
+
+    const { data: schema } = await supabase
+      .schema("timesheet")
+      .from("schemas")
+      .select("id")
+      .eq("id", schemaId)
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (!schema) return { error: "Schemat nie istnieje lub brak dostępu." };
+
+    const { data: maxItem } = await supabase
+      .schema("timesheet")
+      .from("schema_work_items")
+      .select("sort_order")
+      .eq("schema_id", schemaId)
+      .order("sort_order", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    const { error: insertError } = await supabase
+      .schema("timesheet")
+      .from("schema_work_items")
+      .insert({
+        schema_id: schemaId,
+        description: item.description,
+        category: item.category,
+        hourly_rate: item.hourly_rate,
+        proportion: item.proportion,
+        sort_order: (maxItem?.sort_order ?? -1) + 1,
+      });
+
+    if (insertError) {
+      console.error("addWorkItemToSchema:", insertError);
+      return { error: "Nie udało się dodać pozycji do schematu." };
+    }
+
+    revalidatePath(`/schematy/${schemaId}`);
+    return { success: true };
+  } catch (e) {
+    console.error("addWorkItemToSchema exception:", e);
+    return { error: "Wystąpił nieoczekiwany błąd." };
+  }
+}
+
 export async function duplicateSchema(
   id: string
 ): Promise<{ newId?: string; error?: string }> {
