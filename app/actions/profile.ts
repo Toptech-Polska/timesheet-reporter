@@ -55,3 +55,18 @@ export async function updateProfile(data: ProfileData): Promise<ActionResult> {
     return { success: false, error: "Wystąpił nieoczekiwany błąd." };
   }
 }
+
+export async function changePassword(newPassword: string): Promise<ActionResult> {
+  try {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) {
+      console.error("changePassword error:", error);
+      return { success: false, error: "Nie udało się zmienić hasła. Spróbuj ponownie." };
+    }
+    return { success: true };
+  } catch (e) {
+    console.error("changePassword exception:", e);
+    return { success: false, error: "Wystąpił nieoczekiwany błąd." };
+  }
+}

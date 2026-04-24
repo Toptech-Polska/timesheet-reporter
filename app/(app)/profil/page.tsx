@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { ProfileForm } from "./_profile-form";
+import { PasswordForm } from "./_password-form";
 import { Globe, Mail, MapPin, Building2, Hash } from "lucide-react";
 
 export default async function ProfilPage() {
@@ -48,7 +49,20 @@ export default async function ProfilPage() {
         </div>
       </div>
 
-      {/* Sekcja B — Dane zleceniodawcy */}
+      {/* Sekcja B — Zmiana hasła */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+        <div className="px-6 py-4 border-b border-slate-100">
+          <h2 className="text-base font-semibold text-slate-900">Zmiana hasła</h2>
+          <p className="text-xs text-slate-500 mt-0.5">
+            Ustaw nowe hasło do swojego konta
+          </p>
+        </div>
+        <div className="px-6 py-5">
+          <PasswordForm />
+        </div>
+      </div>
+
+      {/* Sekcja C — Dane zleceniodawcy */}
       <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
           <div>
