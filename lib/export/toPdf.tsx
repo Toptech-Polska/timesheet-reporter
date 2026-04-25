@@ -1,4 +1,5 @@
 import React from "react";
+import path from "path";
 import {
   Document,
   Font,
@@ -9,9 +10,7 @@ import {
   renderToBuffer,
 } from "@react-pdf/renderer";
 
-const ROBOTO_REGULAR = "https://fonts.gstatic.com/s/roboto/v32/KFOmCnqEu92Fr1Mu4mxKKTU1Kvnz.ttf";
-const ROBOTO_BOLD    = "https://fonts.gstatic.com/s/roboto/v32/KFOlCnqEu92Fr1MmWUlfBBc4AMP6lbBP.ttf";
-const ROBOTO_ITALIC  = "https://fonts.gstatic.com/s/roboto/v32/KFOkCnqEu92Fr1Mu51xIIzc5Jd8.ttf";
+const FONTS_DIR = path.join(process.cwd(), "public", "fonts");
 
 let fontRegistered = false;
 
@@ -21,9 +20,9 @@ function ensureFonts() {
   Font.register({
     family: "Roboto",
     fonts: [
-      { src: ROBOTO_REGULAR },
-      { src: ROBOTO_BOLD, fontWeight: 700 },
-      { src: ROBOTO_ITALIC, fontStyle: "italic" },
+      { src: path.join(FONTS_DIR, "Roboto-Regular.ttf") },
+      { src: path.join(FONTS_DIR, "Roboto-Bold.ttf"), fontWeight: 700 },
+      { src: path.join(FONTS_DIR, "Roboto-Italic.ttf"), fontStyle: "italic" },
     ],
   });
 
