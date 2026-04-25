@@ -65,18 +65,24 @@ export async function uploadPdfToGoogleDrive(
     line_total: e.line_total as number,
   }));
 
-  const pdfBuffer = await generatePdf(
-    {
-      period_month: report.period_month,
-      period_year: report.period_year,
-      invoice_number: report.invoice_number ?? null,
-      target_amount: report.target_amount,
-      calculated_amount: report.calculated_amount,
-      contractor_snapshot: report.contractor_snapshot ?? {},
-      client_snapshot: report.client_snapshot ?? {},
-    },
-    entries
-  );
+  let pdfBuffer: Buffer;
+  try {
+    pdfBuffer = await generatePdf(
+      {
+        period_month: report.period_month,
+        period_year: report.period_year,
+        invoice_number: report.invoice_number ?? null,
+        target_amount: report.target_amount,
+        calculated_amount: report.calculated_amount,
+        contractor_snapshot: report.contractor_snapshot ?? {},
+        client_snapshot: report.client_snapshot ?? {},
+      },
+      entries
+    );
+  } catch (pdfErr) {
+    console.error("PDF generation failed in Drive upload:", pdfErr);
+    return { error: "Błąd generowania PDF przed przesłaniem" };
+  }
 
   const contractorName = (profile?.contractor_name as string | undefined) ?? "";
   const namePart = contractorName
@@ -102,6 +108,10 @@ export async function uploadPdfToGoogleDrive(
   const closing = Buffer.from(`\r\n--${boundary}--`);
   const body = Buffer.concat([preamble, pdfBuffer, closing]);
 
+  console.log("Drive upload — token present:", !!googleToken,
+    "token length:", googleToken?.length,
+    "folder:", folderId);
+
   const response = await fetch(
     "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart",
     {
@@ -109,7 +119,6 @@ export async function uploadPdfToGoogleDrive(
       headers: {
         Authorization: `Bearer ${googleToken}`,
         "Content-Type": `multipart/related; boundary=${boundary}`,
-        "Content-Length": String(body.length),
       },
       body,
     }
@@ -117,11 +126,14 @@ export async function uploadPdfToGoogleDrive(
 
   if (!response.ok) {
     const errText = await response.text().catch(() => "");
-    console.error("Google Drive upload error:", response.status, errText);
+    console.error("Drive API error:", response.status, errText);
     if (response.status === 401 || response.status === 403) {
       return { error: "reauth" };
     }
-    return { error: "Błąd przesyłania do Google Drive" };
+    if (response.status === 404) {
+      return { error: "no_folder" };
+    }
+    return { error: `Drive ${response.status}: ${errText.slice(0, 200)}` };
   }
 
   const result = (await response.json()) as { id: string };
