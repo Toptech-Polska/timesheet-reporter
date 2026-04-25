@@ -39,7 +39,7 @@ function LoginContent() {
       options: {
         redirectTo: `${window.location.origin}/auth/callback`,
         scopes:
-          "openid email profile https://www.googleapis.com/auth/drive.file",
+          "openid email profile https://www.googleapis.com/auth/drive",
         queryParams: { access_type: "offline", prompt: "consent" },
       },
     });

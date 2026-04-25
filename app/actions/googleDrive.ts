@@ -22,7 +22,29 @@ export async function uploadPdfToGoogleDrive(
     data: { session },
   } = await supabase.auth.getSession();
 
-  const googleToken = session?.provider_token;
+  let googleToken = session?.provider_token as string | null;
+
+  if (!googleToken && session?.provider_refresh_token) {
+    try {
+      const refreshRes = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ?? "",
+          client_secret: process.env.GOOGLE_CLIENT_SECRET ?? "",
+          refresh_token: session.provider_refresh_token,
+          grant_type: "refresh_token",
+        }),
+      });
+      if (refreshRes.ok) {
+        const refreshData = await refreshRes.json() as { access_token: string };
+        googleToken = refreshData.access_token;
+      }
+    } catch (e) {
+      console.error("Token refresh failed:", e);
+    }
+  }
+
   if (!googleToken) return { error: "reauth" };
 
   const { data: profile } = await supabase
@@ -133,7 +155,7 @@ export async function uploadPdfToGoogleDrive(
     if (response.status === 404) {
       return { error: "no_folder" };
     }
-    return { error: `Drive ${response.status}: ${errText.slice(0, 200)}` };
+    return { error: "Błąd przesyłania do Google Drive" };
   }
 
   const result = (await response.json()) as { id: string };
