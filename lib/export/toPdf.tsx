@@ -164,7 +164,7 @@ function ReportDocument({ report, entries }: { report: ReportForPdf; entries: En
         {/* Nagłówek */}
         <View style={styles.headerRow}>
           <View>
-            <Text style={styles.titleText}>TIME SHEET</Text>
+            <Text style={styles.titleText}>RAPORT</Text>
             <Text style={styles.subtitleText}>
               Okres: {MONTHS_PL[report.period_month - 1]} {report.period_year}
             </Text>
