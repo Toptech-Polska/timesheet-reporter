@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { isAdmin } from "@/lib/auth/roles";
 import { Sidebar } from "@/components/layout/sidebar";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 export default async function AppLayout({
   children,
@@ -20,11 +21,15 @@ export default async function AppLayout({
   const adminStatus = await isAdmin(supabase);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       <Sidebar
         userEmail={user.email ?? ""}
         isAdmin={adminStatus}
       />
+      {/* Desktop top-right theme toggle */}
+      <div className="hidden lg:flex fixed top-4 right-4 z-30">
+        <ThemeToggle />
+      </div>
       <main className="lg:pl-60">
         <div className="pt-14 lg:pt-0">
           <div className="px-6 py-8">{children}</div>

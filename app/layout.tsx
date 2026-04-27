@@ -17,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pl" className={cn("font-sans", inter.variable)}>
+    <html lang="pl" className={cn("font-sans", inter.variable)} suppressHydrationWarning>
       <body className="antialiased">
         <Providers>{children}</Providers>
       </body>

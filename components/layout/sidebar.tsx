@@ -16,6 +16,7 @@ import {
   Clock,
   LayoutGrid,
 } from "lucide-react";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 
 interface SidebarProps {
   userEmail: string;
@@ -123,13 +124,16 @@ export function Sidebar({ userEmail, isAdmin }: SidebarProps) {
           <Clock className="size-5 text-blue-400" />
           <span className="text-base font-bold text-white">TimeSheet</span>
         </div>
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="text-slate-300 hover:text-white"
-          aria-label="Menu"
-        >
-          {mobileOpen ? <X className="size-6" /> : <Menu className="size-6" />}
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="text-slate-300 hover:text-white"
+            aria-label="Menu"
+          >
+            {mobileOpen ? <X className="size-6" /> : <Menu className="size-6" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile overlay */}
