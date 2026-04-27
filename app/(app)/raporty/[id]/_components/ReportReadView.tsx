@@ -38,11 +38,11 @@ export function ReportReadView({ report, entries, savedBanner }: Props) {
     <div className="space-y-4">
       {/* Baner po zatwierdzeniu */}
       {savedBanner === "approved" && (
-        <div className="flex items-start gap-3 rounded-xl border border-green-200 bg-green-50 px-5 py-4">
-          <FileText className="size-5 shrink-0 mt-0.5 text-green-600" />
+        <div className="flex items-start gap-3 rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950/30 px-5 py-4">
+          <FileText className="size-5 shrink-0 mt-0.5 text-green-600 dark:text-green-400" />
           <div>
-            <p className="font-semibold text-green-800">Raport zatwierdzony</p>
-            <p className="text-sm mt-0.5 text-green-600">
+            <p className="font-semibold text-green-800 dark:text-green-300">Raport zatwierdzony</p>
+            <p className="text-sm mt-0.5 text-green-600 dark:text-green-400">
               Raport został zatwierdzony i zapisany w systemie.
             </p>
           </div>
@@ -72,12 +72,12 @@ export function ReportReadView({ report, entries, savedBanner }: Props) {
       />
 
       {/* Podsumowanie kwot */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-3 flex flex-wrap gap-4 text-sm">
-        <span className="text-slate-600">
-          Cel: <strong className="text-slate-900">{formatPLN(report.target_amount)}</strong>
+      <div className="bg-white dark:bg-[#1e2130] rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm px-5 py-3 flex flex-wrap gap-4 text-sm">
+        <span className="text-slate-600 dark:text-slate-400">
+          Cel: <strong className="text-slate-900 dark:text-slate-100">{formatPLN(report.target_amount)}</strong>
         </span>
-        <span className="text-slate-600">
-          Wyliczona: <strong className="text-slate-900">{formatPLN(report.calculated_amount)}</strong>
+        <span className="text-slate-600 dark:text-slate-400">
+          Wyliczona: <strong className="text-slate-900 dark:text-slate-100">{formatPLN(report.calculated_amount)}</strong>
         </span>
         {hasDiff && (
           <span className={`font-semibold ${(report.amount_difference ?? 0) < 0 ? "text-red-600" : "text-amber-600"}`}>
@@ -88,8 +88,8 @@ export function ReportReadView({ report, entries, savedBanner }: Props) {
 
       {/* Formularz nr faktury (tylko jeśli brak) */}
       {!report.invoice_number && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl px-5 py-3 flex flex-col sm:flex-row sm:items-center gap-3">
-          <p className="text-sm text-amber-800 font-medium">Brak numeru faktury</p>
+        <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl px-5 py-3 flex flex-col sm:flex-row sm:items-center gap-3">
+          <p className="text-sm text-amber-800 dark:text-amber-300 font-medium">Brak numeru faktury</p>
           <InvoiceNumberForm reportId={report.id} current={null} />
         </div>
       )}

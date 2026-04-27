@@ -417,9 +417,9 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
-      <div className="px-6 py-4 border-b border-slate-100">
-        <h2 className="text-sm font-semibold text-slate-900 uppercase tracking-wide">
+    <div className="bg-white dark:bg-[#1e2130] rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+      <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700">
+        <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wide">
           {title}
         </h2>
       </div>

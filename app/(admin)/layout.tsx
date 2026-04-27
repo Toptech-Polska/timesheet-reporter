@@ -23,7 +23,7 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       <AdminSidebar userEmail={user.email ?? ""} />
       <main className="lg:pl-60">
         <div className="pt-14 lg:pt-0">

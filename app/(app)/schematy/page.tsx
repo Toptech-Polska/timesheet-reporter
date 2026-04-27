@@ -61,8 +61,8 @@ export default function SchematyPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Schematy pracy</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Schematy pracy</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Konfiguracje podziału czasu i stawek dla raportów
           </p>
         </div>
@@ -75,15 +75,15 @@ export default function SchematyPage() {
       </div>
 
       {/* Filter toggle */}
-      <div className="flex gap-2 p-1 bg-slate-100 rounded-lg w-fit">
+      <div className="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg w-fit">
         {(["active", "archived", "all"] as FilterMode[]).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
             className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${
               filter === f
-                ? "bg-white text-slate-900 shadow-sm"
-                : "text-slate-500 hover:text-slate-700"
+                ? "bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-100 shadow-sm"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200"
             }`}
           >
             {f === "active" ? "Aktywne" : f === "archived" ? "Zarchiwizowane" : "Wszystkie"}
@@ -110,19 +110,19 @@ export default function SchematyPage() {
 function EmptyState({ filter }: { filter: FilterMode }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
-      <div className="rounded-full bg-slate-100 p-5 mb-4">
+      <div className="rounded-full bg-slate-100 dark:bg-slate-800 p-5 mb-4">
         {filter === "archived" ? (
-          <Layers className="size-8 text-slate-400" />
+          <Layers className="size-8 text-slate-400 dark:text-slate-500" />
         ) : (
-          <LayoutGrid className="size-8 text-slate-400" />
+          <LayoutGrid className="size-8 text-slate-400 dark:text-slate-500" />
         )}
       </div>
-      <h3 className="text-base font-semibold text-slate-700 mb-1">
+      <h3 className="text-base font-semibold text-slate-700 dark:text-slate-300 mb-1">
         {filter === "archived"
           ? "Brak zarchiwizowanych schematów"
           : "Nie masz jeszcze żadnych schematów"}
       </h3>
-      <p className="text-sm text-slate-400 mb-6 max-w-xs">
+      <p className="text-sm text-slate-400 dark:text-slate-500 mb-6 max-w-xs">
         {filter === "archived"
           ? "Zarchiwizowane schematy pojawią się tutaj."
           : "Schematy definiują strukturę pozycji pracy i stawek godzinowych używanych w raportach."}
@@ -143,13 +143,13 @@ function SkeletonGrid() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {[1, 2, 3, 4].map((i) => (
-        <div key={i} className="bg-white rounded-xl border border-slate-200 p-5 space-y-3 animate-pulse">
-          <div className="h-4 bg-slate-200 rounded w-3/4" />
-          <div className="h-3 bg-slate-100 rounded w-full" />
-          <div className="h-3 bg-slate-100 rounded w-2/3" />
+        <div key={i} className="bg-white dark:bg-[#1e2130] rounded-xl border border-slate-200 dark:border-slate-700 p-5 space-y-3 animate-pulse">
+          <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4" />
+          <div className="h-3 bg-slate-100 dark:bg-slate-700/60 rounded w-full" />
+          <div className="h-3 bg-slate-100 dark:bg-slate-700/60 rounded w-2/3" />
           <div className="flex gap-1 pt-1">
             {[1, 2, 3, 4, 5].map((d) => (
-              <div key={d} className="h-5 w-8 bg-slate-100 rounded" />
+              <div key={d} className="h-5 w-8 bg-slate-100 dark:bg-slate-700/60 rounded" />
             ))}
           </div>
         </div>

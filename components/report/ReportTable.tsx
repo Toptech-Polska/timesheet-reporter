@@ -85,7 +85,7 @@ export function ReportTable({
   const monthAmount = entries.reduce((s, e) => s + e.line_total, 0);
 
   return (
-    <table className="w-full text-sm border-collapse min-w-[750px] rounded-xl overflow-hidden border border-slate-200">
+    <table className="w-full text-sm border-collapse min-w-[750px] rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
       <thead>
         <tr className="bg-slate-700 text-white">
           <th className="px-3 py-3 text-left font-semibold w-[90px]">Data</th>
@@ -132,23 +132,23 @@ export function ReportTable({
                       return (
                         <tr
                           key={`entry-${entryIdx}`}
-                          className={`border-b border-slate-100 ${
+                          className={`border-b border-slate-100 dark:border-slate-700 ${
                             entry.is_manually_edited
-                              ? "bg-amber-50"
-                              : "hover:bg-slate-50"
+                              ? "bg-amber-50 dark:bg-amber-950/30"
+                              : "hover:bg-slate-50 dark:hover:bg-slate-800/50"
                           }`}
                         >
                           {isFirst && (
                             <>
                               <td
                                 rowSpan={dayGroup.entries.length}
-                                className="px-3 py-2 align-top font-medium text-slate-700 border-r border-slate-100"
+                                className="px-3 py-2 align-top font-medium text-slate-700 dark:text-slate-300 border-r border-slate-100 dark:border-slate-700"
                               >
                                 {dayGroup.dateShort}
                               </td>
                               <td
                                 rowSpan={dayGroup.entries.length}
-                                className="px-3 py-2 align-top text-slate-500 border-r border-slate-100"
+                                className="px-3 py-2 align-top text-slate-500 dark:text-slate-400 border-r border-slate-100 dark:border-slate-700"
                               >
                                 {entry.day_of_week}
                               </td>

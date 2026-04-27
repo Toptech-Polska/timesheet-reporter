@@ -70,27 +70,27 @@ export function ReportCard({ report }: { report: ReportItem }) {
 
   return (
     <>
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-5 py-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+      <div className="bg-white dark:bg-[#1e2130] rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm px-5 py-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         {/* Lewa kolumna — metadane */}
         <div className="flex-1 min-w-0 space-y-1.5">
           <div className="flex items-center gap-2 flex-wrap">
-            <h2 className="text-base font-bold text-slate-900">
+            <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
               Time Sheet — {monthName} {report.period_year}
             </h2>
             <ReportStatusBadge status={report.status} />
           </div>
 
           {report.invoice_number && (
-            <p className="text-sm text-slate-500">
-              Faktura: <span className="font-medium text-slate-700">{report.invoice_number}</span>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Faktura: <span className="font-medium text-slate-700 dark:text-slate-300">{report.invoice_number}</span>
             </p>
           )}
 
-          <div className="flex items-center gap-3 flex-wrap text-sm text-slate-600">
+          <div className="flex items-center gap-3 flex-wrap text-sm text-slate-600 dark:text-slate-400">
             <span>
               Cel: <span className="font-medium">{formatPLN(report.target_amount)}</span>
             </span>
-            <span className="text-slate-300">|</span>
+            <span className="text-slate-300 dark:text-slate-600">|</span>
             <span>
               Wyliczona: <span className="font-medium">{formatPLN(report.calculated_amount)}</span>
             </span>
@@ -101,7 +101,7 @@ export function ReportCard({ report }: { report: ReportItem }) {
             )}
           </div>
 
-          <p className="text-xs text-slate-400">
+          <p className="text-xs text-slate-400 dark:text-slate-500">
             Utworzony: {formatDatePL(report.created_at)}
             {report.approved_at && (
               <> · Zatwierdzony: {formatDatePL(report.approved_at)}</>
@@ -122,7 +122,7 @@ export function ReportCard({ report }: { report: ReportItem }) {
             <Button
               variant="outline"
               size="sm"
-              className="border-green-300 text-green-700 hover:bg-green-50"
+              className="border-green-300 dark:border-green-700 text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20"
               onClick={() => setShowApproveDialog(true)}
             >
               <CheckCircle className="size-3.5 mr-1" />
@@ -135,7 +135,7 @@ export function ReportCard({ report }: { report: ReportItem }) {
           <Button
             variant="outline"
             size="sm"
-            className="border-red-200 text-red-600 hover:bg-red-50"
+            className="border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
             onClick={() => setShowDeleteDialog(true)}
           >
             <Trash2 className="size-3.5 mr-1" />

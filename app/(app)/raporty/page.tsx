@@ -58,8 +58,8 @@ export default async function RaportyPage({
       {/* Nagłówek */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Raporty</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Historia Twoich raportów Time Sheet</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Raporty</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Historia Twoich raportów Time Sheet</p>
         </div>
         <Link href="/raporty/nowy">
           <Button className="bg-blue-600 hover:bg-blue-700 text-white border-0">
@@ -80,10 +80,10 @@ export default async function RaportyPage({
 
       {/* Lista */}
       {!reports || reports.length === 0 ? (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm py-16 text-center">
-          <FileText className="size-12 text-slate-300 mx-auto mb-4" />
-          <p className="text-slate-600 font-medium mb-1">Brak raportów</p>
-          <p className="text-sm text-slate-400 mb-6">
+        <div className="bg-white dark:bg-[#1e2130] rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm py-16 text-center">
+          <FileText className="size-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
+          <p className="text-slate-600 dark:text-slate-300 font-medium mb-1">Brak raportów</p>
+          <p className="text-sm text-slate-400 dark:text-slate-500 mb-6">
             {status !== "all" || month > 0
               ? "Brak raportów dla wybranych filtrów."
               : "Utwórz swój pierwszy raport Time Sheet."}
@@ -111,7 +111,7 @@ export default async function RaportyPage({
               <Button variant="outline" size="sm">← Poprzednia</Button>
             </Link>
           )}
-          <span className="text-sm text-slate-500">
+          <span className="text-sm text-slate-500 dark:text-slate-400">
             Strona {page} z {totalPages}
           </span>
           {page < totalPages && (

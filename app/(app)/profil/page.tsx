@@ -30,17 +30,17 @@ export default async function ProfilPage() {
   return (
     <div className="max-w-2xl space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Mój profil</h1>
-        <p className="text-sm text-slate-500 mt-1">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Mój profil</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
           Dane wyświetlane na generowanych raportach
         </p>
       </div>
 
       {/* Sekcja A — Moje dane */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
-        <div className="px-6 py-4 border-b border-slate-100">
-          <h2 className="text-base font-semibold text-slate-900">Moje dane</h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+      <div className="bg-white dark:bg-[#1e2130] rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Moje dane</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Dane zleceniobiorcy widoczne w raportach
           </p>
         </div>
@@ -50,26 +50,26 @@ export default async function ProfilPage() {
       </div>
 
       {/* Sekcja B — Google Drive */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+      <div className="bg-white dark:bg-[#1e2130] rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="px-6 py-4 border-b border-slate-100 flex items-center gap-2">
-          <FolderOpen className="size-4 text-slate-400" />
+          <FolderOpen className="size-4 text-slate-400 dark:text-slate-500" />
           <div>
-            <h2 className="text-base font-semibold text-slate-900">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
               Google Drive
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Folder na raporty przypisany przez administratora
             </p>
           </div>
         </div>
         <div className="px-6 py-5">
           {profile?.google_drive_folder_name ? (
-            <p className="text-sm text-slate-700">
+            <p className="text-sm text-slate-700 dark:text-slate-300">
               Twój folder raportów na Google Drive:{" "}
               <span className="font-medium">{profile.google_drive_folder_name}</span>
             </p>
           ) : (
-            <p className="text-sm text-slate-400 italic">
+            <p className="text-sm text-slate-400 dark:text-slate-500 italic">
               Folder Google Drive nie został jeszcze przypisany przez administratora.
             </p>
           )}
@@ -77,10 +77,10 @@ export default async function ProfilPage() {
       </div>
 
       {/* Sekcja C — Zmiana hasła */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
-        <div className="px-6 py-4 border-b border-slate-100">
-          <h2 className="text-base font-semibold text-slate-900">Zmiana hasła</h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+      <div className="bg-white dark:bg-[#1e2130] rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">Zmiana hasła</h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
             Ustaw nowe hasło do swojego konta
           </p>
         </div>
@@ -90,17 +90,17 @@ export default async function ProfilPage() {
       </div>
 
       {/* Sekcja D — Dane zleceniodawcy */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+      <div className="bg-white dark:bg-[#1e2130] rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
         <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
           <div>
-            <h2 className="text-base font-semibold text-slate-900">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
               Dane zleceniodawcy
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Zarządzane przez administratora
             </p>
           </div>
-          <span className="text-xs bg-slate-100 text-slate-500 px-2.5 py-1 rounded-full font-medium">
+          <span className="text-xs bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-2.5 py-1 rounded-full font-medium">
             Tylko odczyt
           </span>
         </div>
@@ -136,7 +136,7 @@ export default async function ProfilPage() {
               />
             </dl>
           ) : (
-            <p className="text-sm text-slate-400 italic">
+            <p className="text-sm text-slate-400 dark:text-slate-500 italic">
               Dane zleceniodawcy nie zostały jeszcze skonfigurowane.
             </p>
           )}
@@ -161,13 +161,13 @@ function InfoRow({
     <div className="flex items-start gap-3">
       <span className="mt-0.5 shrink-0">{icon}</span>
       <div className="min-w-0">
-        <dt className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+        <dt className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
           {label}
         </dt>
         <dd
-          className={`text-sm text-slate-800 mt-0.5 ${multiline ? "whitespace-pre-line" : ""}`}
+          className={`text-sm text-slate-800 dark:text-slate-200 mt-0.5 ${multiline ? "whitespace-pre-line" : ""}`}
         >
-          {value || <span className="text-slate-400">—</span>}
+          {value || <span className="text-slate-400 dark:text-slate-500">—</span>}
         </dd>
       </div>
     </div>

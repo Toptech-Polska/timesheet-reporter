@@ -26,40 +26,40 @@ export function ProportionTable({
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-slate-200">
-            <th className="pb-2 text-left font-semibold text-slate-600 pr-4">
+          <tr className="border-b border-slate-200 dark:border-slate-700">
+            <th className="pb-2 text-left font-semibold text-slate-600 dark:text-slate-300 pr-4">
               Pozycja pracy
             </th>
-            <th className="pb-2 text-left font-semibold text-slate-600 pr-4">
+            <th className="pb-2 text-left font-semibold text-slate-600 dark:text-slate-300 pr-4">
               Kategoria
             </th>
-            <th className="pb-2 text-right font-semibold text-slate-600 pr-4">
+            <th className="pb-2 text-right font-semibold text-slate-600 dark:text-slate-300 pr-4">
               Stawka/h
             </th>
-            <th className="pb-2 text-center font-semibold text-slate-600 w-24">
+            <th className="pb-2 text-center font-semibold text-slate-600 dark:text-slate-300 w-24">
               Proporcja
             </th>
-            <th className="pb-2 text-right font-semibold text-slate-600 pr-4">
+            <th className="pb-2 text-right font-semibold text-slate-600 dark:text-slate-300 pr-4">
               H łącznie
             </th>
-            <th className="pb-2 text-right font-semibold text-slate-600 pr-4">
+            <th className="pb-2 text-right font-semibold text-slate-600 dark:text-slate-300 pr-4">
               Kwota
             </th>
             <th className="pb-2 w-8" />
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
           {proposals.map((p) => {
             const isNew = p.work_item_id === newlyAddedId;
             return (
               <tr
                 key={p.work_item_id}
                 className={`transition-colors duration-1000 ${
-                  isNew ? "bg-green-50" : "hover:bg-slate-50"
+                  isNew ? "bg-green-50 dark:bg-green-950/20" : "hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 }`}
               >
                 <td className="py-3 pr-4">{p.description}</td>
-                <td className="py-3 pr-4 text-slate-500">{p.category}</td>
+                <td className="py-3 pr-4 text-slate-500 dark:text-slate-400">{p.category}</td>
                 <td className="py-3 pr-4 text-right tabular-nums">
                   {formatPLN(p.hourly_rate)}
                 </td>
@@ -76,10 +76,10 @@ export function ProportionTable({
                         onProportionChange(p.work_item_id, val);
                       }
                     }}
-                    className="w-16 text-center rounded-md border border-slate-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-16 text-center rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </td>
-                <td className="py-3 pr-4 text-right tabular-nums text-slate-700">
+                <td className="py-3 pr-4 text-right tabular-nums text-slate-700 dark:text-slate-300">
                   {formatHours(p.hours_total)}
                 </td>
                 <td className="py-3 pr-4 text-right tabular-nums font-medium">
@@ -102,8 +102,8 @@ export function ProportionTable({
                     }
                     className={`transition-colors duration-150 ${
                       canDelete
-                        ? "text-slate-300 hover:text-red-500 cursor-pointer"
-                        : "text-slate-200 cursor-not-allowed"
+                        ? "text-slate-300 dark:text-slate-600 hover:text-red-500 dark:hover:text-red-400 cursor-pointer"
+                        : "text-slate-200 dark:text-slate-700 cursor-not-allowed"
                     }`}
                   >
                     <Trash2 className="size-4" />
@@ -114,14 +114,14 @@ export function ProportionTable({
           })}
         </tbody>
         <tfoot>
-          <tr className="border-t-2 border-slate-200">
-            <td colSpan={4} className="pt-3 text-sm font-semibold text-slate-600">
+          <tr className="border-t-2 border-slate-200 dark:border-slate-700">
+            <td colSpan={4} className="pt-3 text-sm font-semibold text-slate-600 dark:text-slate-300">
               Łącznie
             </td>
-            <td className="pt-3 pr-4 text-right tabular-nums font-semibold text-slate-800">
+            <td className="pt-3 pr-4 text-right tabular-nums font-semibold text-slate-800 dark:text-slate-200">
               {formatHours(totalHours)}
             </td>
-            <td colSpan={2} className="pt-3 text-right tabular-nums font-bold text-slate-900">
+            <td colSpan={2} className="pt-3 text-right tabular-nums font-bold text-slate-900 dark:text-slate-100">
               {formatPLN(totalAmount)}
             </td>
           </tr>

@@ -107,7 +107,7 @@ export function ReportPreview({
   return (
     <div className="space-y-6">
       {/* Invoice number */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-5">
+      <div className="bg-white dark:bg-[#1e2130] rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm px-6 py-5">
         <div className="max-w-sm space-y-1.5">
           <Label htmlFor="invoice_number">Nr faktury / dokumentu</Label>
           <Input
@@ -139,13 +139,13 @@ export function ReportPreview({
       </div>
 
       {/* Summary bar */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm px-6 py-5">
+      <div className="bg-white dark:bg-[#1e2130] rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm px-6 py-5">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div>
-            <p className="text-xs text-slate-500 uppercase tracking-wide">
+            <p className="text-xs text-slate-500 dark:text-slate-400 uppercase tracking-wide">
               Suma łączna
             </p>
-            <p className="text-2xl font-bold text-slate-900 tabular-nums">
+            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 tabular-nums">
               {formatPLN(calculatedAmount)}
             </p>
           </div>
@@ -153,8 +153,8 @@ export function ReportPreview({
             <div
               className={`text-sm px-4 py-2 rounded-lg border ${
                 difference > 0
-                  ? "bg-amber-50 border-amber-200 text-amber-700"
-                  : "bg-red-50 border-red-200 text-red-700"
+                  ? "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300"
+                  : "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300"
               }`}
             >
               Różnica od kwoty docelowej:{" "}
@@ -165,7 +165,7 @@ export function ReportPreview({
             </div>
           )}
           {Math.abs(difference) < 1 && (
-            <p className="text-sm text-green-600">
+            <p className="text-sm text-green-600 dark:text-green-400">
               ✓ Kwota zgodna z celem
             </p>
           )}
@@ -173,7 +173,7 @@ export function ReportPreview({
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-between pt-2 border-t border-slate-100 flex-wrap gap-3">
+      <div className="flex items-center justify-between pt-2 border-t border-slate-100 dark:border-slate-700 flex-wrap gap-3">
         <Button
           type="button"
           variant="outline"

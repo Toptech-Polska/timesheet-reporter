@@ -75,7 +75,7 @@ export function AdminReportsClient({ reports, year, month, status }: Props) {
           placeholder="Szukaj po nazwie lub e-mailu..."
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          className="h-9 rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-400 w-64"
+          className="h-9 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-1 text-sm shadow-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-blue-400 w-64"
         />
         <a href={`/api/admin/reports/export?${exportParams.toString()}`} download>
           <Button variant="outline" size="sm">
@@ -87,53 +87,53 @@ export function AdminReportsClient({ reports, year, month, status }: Props) {
 
       {/* Tabela */}
       {filtered.length === 0 ? (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm py-12 text-center text-slate-400 text-sm">
+        <div className="bg-white dark:bg-[#1e2130] rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm py-12 text-center text-slate-400 dark:text-slate-500 text-sm">
           Brak raportów spełniających kryteria
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+        <div className="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#1e2130] shadow-sm">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50">
+              <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
                 {["Użytkownik", "E-mail", "Okres", "Nr faktury", "Cel (PLN)", "Wyliczona (PLN)", "Δ", "Status", "Zatwierdzone", "Akcje"].map((h) => (
-                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap">
+                  <th key={h} className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 whitespace-nowrap">
                     {h}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
               {paginated.map((r) => {
                 const absDiff = Math.abs(r.amount_difference ?? 0);
                 const hasDiff = absDiff > 1;
                 const period = `${MONTHS_PL[r.period_month - 1]} ${r.period_year}`;
                 return (
-                  <tr key={r.id} className="hover:bg-slate-50/50 transition-colors">
-                    <td className="px-4 py-3 font-medium text-slate-800 whitespace-nowrap">
-                      {r.contractor_name || <span className="text-slate-400 italic">—</span>}
+                  <tr key={r.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors">
+                    <td className="px-4 py-3 font-medium text-slate-800 dark:text-slate-200 whitespace-nowrap">
+                      {r.contractor_name || <span className="text-slate-400 dark:text-slate-500 italic">—</span>}
                     </td>
-                    <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{r.contractor_email || "—"}</td>
-                    <td className="px-4 py-3 text-slate-600 whitespace-nowrap">{period}</td>
-                    <td className="px-4 py-3 text-slate-500">{r.invoice_number || "—"}</td>
-                    <td className="px-4 py-3 text-right tabular-nums text-slate-700 whitespace-nowrap">
+                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400 whitespace-nowrap">{r.contractor_email || "—"}</td>
+                    <td className="px-4 py-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">{period}</td>
+                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400">{r.invoice_number || "—"}</td>
+                    <td className="px-4 py-3 text-right tabular-nums text-slate-700 dark:text-slate-300 whitespace-nowrap">
                       {formatPLN(r.target_amount)}
                     </td>
-                    <td className="px-4 py-3 text-right tabular-nums text-slate-700 whitespace-nowrap">
+                    <td className="px-4 py-3 text-right tabular-nums text-slate-700 dark:text-slate-300 whitespace-nowrap">
                       {formatPLN(r.calculated_amount)}
                     </td>
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       {hasDiff ? (
-                        <span className={`text-xs font-semibold ${(r.amount_difference ?? 0) < 0 ? "text-red-600" : "text-amber-500"}`}>
+                        <span className={`text-xs font-semibold ${(r.amount_difference ?? 0) < 0 ? "text-red-600 dark:text-red-400" : "text-amber-500 dark:text-amber-400"}`}>
                           {formatPLN(absDiff)}
                         </span>
                       ) : (
-                        <span className="text-slate-300">—</span>
+                        <span className="text-slate-300 dark:text-slate-600">—</span>
                       )}
                     </td>
                     <td className="px-4 py-3">
                       <ReportStatusBadge status={r.status} />
                     </td>
-                    <td className="px-4 py-3 text-slate-500 whitespace-nowrap text-xs">
+                    <td className="px-4 py-3 text-slate-500 dark:text-slate-400 whitespace-nowrap text-xs">
                       {r.approved_at ? formatDatePL(r.approved_at) : "—"}
                     </td>
                     <td className="px-4 py-3">
@@ -153,10 +153,10 @@ export function AdminReportsClient({ reports, year, month, status }: Props) {
       )}
 
       {/* Podsumowanie */}
-      <div className="flex flex-wrap gap-6 text-sm text-slate-600 bg-white rounded-xl border border-slate-200 px-5 py-3">
-        <span>Łącznie raportów: <strong className="text-slate-900">{filtered.length}</strong></span>
-        <span>Suma kwot zatwierdzonych: <strong className="text-slate-900">{formatPLN(totalApproved)}</strong></span>
-        <span>Suma kwot docelowych: <strong className="text-slate-900">{formatPLN(totalTarget)}</strong></span>
+      <div className="flex flex-wrap gap-6 text-sm text-slate-600 dark:text-slate-400 bg-white dark:bg-[#1e2130] rounded-xl border border-slate-200 dark:border-slate-700 px-5 py-3">
+        <span>Łącznie raportów: <strong className="text-slate-900 dark:text-slate-100">{filtered.length}</strong></span>
+        <span>Suma kwot zatwierdzonych: <strong className="text-slate-900 dark:text-slate-100">{formatPLN(totalApproved)}</strong></span>
+        <span>Suma kwot docelowych: <strong className="text-slate-900 dark:text-slate-100">{formatPLN(totalTarget)}</strong></span>
       </div>
 
       {/* Paginacja */}
@@ -165,7 +165,7 @@ export function AdminReportsClient({ reports, year, month, status }: Props) {
           <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={currentPage === 1}>
             ← Poprzednia
           </Button>
-          <span className="text-sm text-slate-500">Strona {currentPage} z {totalPages}</span>
+          <span className="text-sm text-slate-500 dark:text-slate-400">Strona {currentPage} z {totalPages}</span>
           <Button variant="outline" size="sm" onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>
             Następna →
           </Button>

@@ -12,10 +12,10 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_STYLES: Record<string, string> = {
-  draft: "bg-slate-100 text-slate-600",
-  submitted: "bg-blue-100 text-blue-700",
-  approved: "bg-green-100 text-green-700",
-  rejected: "bg-red-100 text-red-600",
+  draft: "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300",
+  submitted: "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-400",
+  approved: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400",
+  rejected: "bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400",
 };
 
 export default async function AdminDashboardPage() {
@@ -65,8 +65,8 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Dashboard</h1>
-        <p className="text-sm text-slate-500 mt-1">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Dashboard</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
           Przegląd stanu aplikacji — {monthLabel}
         </p>
       </div>
@@ -94,21 +94,21 @@ export default async function AdminDashboardPage() {
       </div>
 
       {/* Ostatnie raporty */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
-        <div className="px-6 py-4 border-b border-slate-100">
-          <h2 className="text-base font-semibold text-slate-900">
+      <div className="bg-white dark:bg-[#1e2130] rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700">
+          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
             Ostatnie raporty
           </h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-100 bg-slate-50">
+              <tr className="border-b border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50">
                 {["Użytkownik", "Okres", "Kwota docelowa", "Status", "Data utworzenia"].map(
                   (h) => (
                     <th
                       key={h}
-                      className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 whitespace-nowrap"
+                      className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400 whitespace-nowrap"
                     >
                       {h}
                     </th>
@@ -116,12 +116,12 @@ export default async function AdminDashboardPage() {
                 )}
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
               {recentReports.length === 0 ? (
                 <tr>
                   <td
                     colSpan={5}
-                    className="px-4 py-8 text-center text-slate-400 text-sm"
+                    className="px-4 py-8 text-center text-slate-400 dark:text-slate-500 text-sm"
                   >
                     Brak raportów
                   </td>
@@ -134,30 +134,30 @@ export default async function AdminDashboardPage() {
                   return (
                     <tr
                       key={r.id}
-                      className="hover:bg-slate-50/50 transition-colors"
+                      className="hover:bg-slate-50/50 dark:hover:bg-slate-800/30 transition-colors"
                     >
-                      <td className="px-4 py-3 text-slate-700 font-medium">
+                      <td className="px-4 py-3 text-slate-700 dark:text-slate-300 font-medium">
                         {profile?.contractor_name ?? (
-                          <span className="text-slate-400 italic">—</span>
+                          <span className="text-slate-400 dark:text-slate-500 italic">—</span>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">
                         {formatMonthYear(r.period_month, r.period_year)}
                       </td>
-                      <td className="px-4 py-3 text-slate-700 whitespace-nowrap">
+                      <td className="px-4 py-3 text-slate-700 dark:text-slate-300 whitespace-nowrap">
                         {formatPLN(r.calculated_amount)}
                       </td>
                       <td className="px-4 py-3">
                         <span
                           className={cn(
                             "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
-                            STATUS_STYLES[r.status] ?? "bg-slate-100 text-slate-600"
+                            STATUS_STYLES[r.status] ?? "bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300"
                           )}
                         >
                           {STATUS_LABELS[r.status] ?? r.status}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-slate-600 whitespace-nowrap">
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-400 whitespace-nowrap">
                         {formatDatePL(r.created_at)}
                       </td>
                     </tr>
@@ -184,11 +184,11 @@ function StatCard({
   bg: string;
 }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex items-center gap-4">
+    <div className="bg-white dark:bg-[#1e2130] rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-5 flex items-center gap-4">
       <div className={cn("rounded-lg p-2.5 shrink-0", bg)}>{icon}</div>
       <div className="min-w-0">
-        <p className="text-xs text-slate-500 font-medium truncate">{label}</p>
-        <p className="text-2xl font-bold text-slate-900 mt-0.5 truncate">{value}</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">{label}</p>
+        <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-0.5 truncate">{value}</p>
       </div>
     </div>
   );

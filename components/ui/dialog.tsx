@@ -44,12 +44,12 @@ export function ConfirmDialog({
         className="absolute inset-0 bg-black/40"
         onClick={() => !loading && onOpenChange(false)}
       />
-      <div className="relative z-10 w-full max-w-md rounded-xl bg-white shadow-xl border border-slate-200 p-6">
+      <div className="relative z-10 w-full max-w-md rounded-xl bg-white dark:bg-[#1e2130] shadow-xl border border-slate-200 dark:border-slate-700 p-6">
         <div className="flex items-start justify-between gap-4 mb-4">
-          <h2 className="text-base font-semibold text-slate-900">{title}</h2>
+          <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
           <button
             onClick={() => !loading && onOpenChange(false)}
-            className="text-slate-400 hover:text-slate-600 shrink-0"
+            className="text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300 shrink-0"
             disabled={loading}
             aria-label="Zamknij"
           >
@@ -58,7 +58,7 @@ export function ConfirmDialog({
         </div>
 
         {description && (
-          <p className="text-sm text-slate-600 mb-6">{description}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300 mb-6">{description}</p>
         )}
 
         <div className="flex justify-end gap-3">

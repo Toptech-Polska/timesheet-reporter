@@ -47,7 +47,7 @@ export function ReportFilters({ selectedYear, selectedMonth, selectedStatus }: P
       <select
         value={selectedYear}
         onChange={(e) => updateParam("rok", e.target.value)}
-        className="h-9 rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
+        className="h-9 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
       >
         {years.map((y) => (
           <option key={y} value={y}>
@@ -60,7 +60,7 @@ export function ReportFilters({ selectedYear, selectedMonth, selectedStatus }: P
       <select
         value={selectedMonth}
         onChange={(e) => updateParam("miesiac", e.target.value)}
-        className="h-9 rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
+        className="h-9 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
       >
         <option value={0}>Wszystkie miesiące</option>
         {MONTHS.map((m, i) => (
@@ -74,7 +74,7 @@ export function ReportFilters({ selectedYear, selectedMonth, selectedStatus }: P
       <select
         value={selectedStatus}
         onChange={(e) => updateParam("status", e.target.value)}
-        className="h-9 rounded-md border border-slate-200 bg-white px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
+        className="h-9 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 px-3 py-1 text-sm shadow-sm focus:outline-none focus:ring-1 focus:ring-blue-400"
       >
         <option value="all">Wszystkie statusy</option>
         <option value="draft">Wersja robocza</option>
