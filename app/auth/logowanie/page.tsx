@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
 import Image from "next/image";
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -28,18 +29,20 @@ function LoginContent() {
   const errorParam = searchParams.get("error") ?? "";
   const errorMessage = ERROR_MESSAGES[errorParam] ?? null;
 
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const { theme, setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const stored = (localStorage.getItem("login-theme") as "light" | "dark" | null) ?? "light";
-    setTheme(stored);
     setMounted(true);
-  }, []);
+    // Wymuś light jako default na ekranie logowania
+    // (gdy użytkownik nigdy nie wybierał motywu — theme === 'system')
+    if (!theme || theme === "system") {
+      setTheme("light");
+    }
+  }, [theme, setTheme]);
 
-  useEffect(() => {
-    if (mounted) localStorage.setItem("login-theme", theme);
-  }, [theme, mounted]);
+  // Unikaj hydration mismatch — używaj resolvedTheme dopiero po mount
+  const currentTheme = mounted ? resolvedTheme ?? "light" : "light";
 
   async function handleGoogleLogin() {
     const supabase = createClient();
@@ -53,54 +56,56 @@ function LoginContent() {
     });
   }
 
+  function toggleTheme() {
+    setTheme(currentTheme === "light" ? "dark" : "light");
+  }
+
   return (
-    <div className={theme === "dark" ? "dark" : ""}>
-      <div className="min-h-screen flex items-center justify-center px-4 bg-slate-50 dark:bg-slate-950 transition-colors relative">
-        <button
-          type="button"
-          onClick={() => setTheme((t) => (t === "light" ? "dark" : "light"))}
-          className="absolute top-4 right-4 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors"
-          aria-label="Przełącz motyw"
-        >
-          {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-        </button>
+    <div className="min-h-screen flex items-center justify-center px-4 bg-slate-50 dark:bg-slate-950 transition-colors relative">
+      <button
+        type="button"
+        onClick={toggleTheme}
+        className="absolute top-4 right-4 p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 transition-colors"
+        aria-label="Przełącz motyw"
+      >
+        {currentTheme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+      </button>
 
-        <div className="w-full max-w-md rounded-2xl p-8 shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
-          <div className="flex justify-center mb-8">
-            <Image
-              src="/toptech-logo.svg"
-              alt="TOPTECH"
-              width={200}
-              height={30}
-              className="h-9 w-auto dark:brightness-0 dark:invert"
-              priority
-            />
-          </div>
-
-          <p className="text-center mb-8 text-slate-500 dark:text-slate-400 text-sm">
-            Zaloguj się do raportowania współpracy b2b
-          </p>
-
-          {errorMessage && (
-            <div className="mb-4 rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 px-4 py-3 text-sm text-red-700 dark:text-red-300">
-              {errorMessage}
-            </div>
-          )}
-
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            className="w-full flex items-center justify-center gap-3 h-11 px-4 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-400 dark:hover:border-slate-600 transition-all"
-          >
-            <GoogleIcon />
-            Zaloguj się przez Google
-          </button>
+      <div className="w-full max-w-md rounded-2xl p-8 shadow-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+        <div className="flex justify-center mb-8">
+          <Image
+            src="/toptech-logo.svg"
+            alt="TOPTECH"
+            width={200}
+            height={30}
+            className="h-9 w-auto dark:brightness-0 dark:invert"
+            priority
+          />
         </div>
 
-        <p className="absolute bottom-6 left-0 right-0 text-center text-xs text-slate-400 dark:text-slate-500">
-          Problemy z logowaniem? Skontaktuj się z administratorem.
+        <p className="text-center mb-8 text-slate-500 dark:text-slate-400 text-sm">
+          Zaloguj się do raportowania współpracy b2b
         </p>
+
+        {errorMessage && (
+          <div className="mb-4 rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 px-4 py-3 text-sm text-red-700 dark:text-red-300">
+            {errorMessage}
+          </div>
+        )}
+
+        <button
+          type="button"
+          onClick={handleGoogleLogin}
+          className="w-full flex items-center justify-center gap-3 h-11 px-4 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-lg shadow-sm text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700 hover:border-slate-400 dark:hover:border-slate-600 transition-all"
+        >
+          <GoogleIcon />
+          Zaloguj się przez Google
+        </button>
       </div>
+
+      <p className="absolute bottom-6 left-0 right-0 text-center text-xs text-slate-400 dark:text-slate-500">
+        Problemy z logowaniem? Skontaktuj się z administratorem.
+      </p>
     </div>
   );
 }
