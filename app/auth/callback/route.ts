@@ -8,7 +8,7 @@ export async function GET(request: Request) {
   const origin = requestUrl.origin;
 
   if (!code) {
-    return NextResponse.redirect(new URL("/auth/logowanie", origin));
+    return NextResponse.redirect(new URL("/auth/logowanie?error=no_code", origin));
   }
 
   const supabase = await createClient();
@@ -16,7 +16,7 @@ export async function GET(request: Request) {
 
   if (error || !data.session) {
     return NextResponse.redirect(
-      new URL("/auth/logowanie?error=unauthorized", origin)
+      new URL(`/auth/logowanie?error=exchange_failed&detail=${encodeURIComponent(error?.message ?? "no_session")}`, origin)
     );
   }
 
@@ -26,11 +26,17 @@ export async function GET(request: Request) {
     | string
     | undefined;
 
-  // All DB queries use adminClient — cookies are not yet written at this
-  // point, so the regular server client acts as anon and gets blocked by RLS.
-  const adminClient = createAdminClient();
+  let adminClient;
+  try {
+    adminClient = createAdminClient();
+  } catch (e: unknown) {
+    const msg = e instanceof Error ? e.message : String(e);
+    return NextResponse.redirect(
+      new URL(`/auth/logowanie?error=admin_client_failed&detail=${encodeURIComponent(msg)}`, origin)
+    );
+  }
 
-  const { data: allowed } = await adminClient
+  const { data: allowed, error: allowedError } = await adminClient
     .schema("timesheet")
     .from("allowed_emails")
     .select("email")
@@ -40,7 +46,7 @@ export async function GET(request: Request) {
   if (!allowed) {
     await supabase.auth.signOut();
     return NextResponse.redirect(
-      new URL("/auth/logowanie?error=unauthorized", origin)
+      new URL(`/auth/logowanie?error=not_allowed&detail=${encodeURIComponent(allowedError?.message ?? "no_row")}`, origin)
     );
   }
 
@@ -52,10 +58,15 @@ export async function GET(request: Request) {
     .single();
 
   if (!profile) {
-    await adminClient
+    const { error: insertProfileError } = await adminClient
       .schema("timesheet")
       .from("profiles")
       .insert({ id: userId, contractor_name: fullName ?? null });
+    if (insertProfileError) {
+      return NextResponse.redirect(
+        new URL(`/auth/logowanie?error=profile_insert_failed&detail=${encodeURIComponent(insertProfileError.message)}`, origin)
+      );
+    }
   }
 
   const { data: roleRow } = await adminClient
@@ -66,10 +77,15 @@ export async function GET(request: Request) {
     .single();
 
   if (!roleRow) {
-    await adminClient
+    const { error: insertRoleError } = await adminClient
       .schema("timesheet")
       .from("user_roles")
       .insert({ user_id: userId, role: "user" });
+    if (insertRoleError) {
+      return NextResponse.redirect(
+        new URL(`/auth/logowanie?error=role_insert_failed&detail=${encodeURIComponent(insertRoleError.message)}`, origin)
+      );
+    }
   }
 
   return NextResponse.redirect(new URL("/raporty", origin));
