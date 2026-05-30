@@ -26,66 +26,21 @@ export async function GET(request: Request) {
     | string
     | undefined;
 
-  let adminClient;
-  try {
-    adminClient = createAdminClient();
-  } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : String(e);
-    return NextResponse.redirect(
-      new URL(`/auth/logowanie?error=admin_client_failed&detail=${encodeURIComponent(msg)}`, origin)
-    );
-  }
+  // Use adminClient with raw SQL to bypass both RLS and schema exposure limits.
+  // The timesheet schema is not in PostgREST exposed schemas, so .schema("timesheet")
+  // fails even with service role key. Raw SQL has no such restriction.
+  const adminClient = createAdminClient();
 
-  const { data: allowed, error: allowedError } = await adminClient
-    .schema("timesheet")
-    .from("allowed_emails")
-    .select("email")
-    .eq("email", userEmail)
-    .single();
+  const { data: allowedData, error: allowedError } = await adminClient.rpc(
+    "check_timesheet_access",
+    { p_email: userEmail, p_user_id: userId, p_name: fullName ?? null }
+  );
 
-  if (!allowed) {
+  if (allowedError || !allowedData) {
     await supabase.auth.signOut();
     return NextResponse.redirect(
-      new URL(`/auth/logowanie?error=not_allowed&detail=${encodeURIComponent(allowedError?.message ?? "no_row")}`, origin)
+      new URL(`/auth/logowanie?error=not_allowed&detail=${encodeURIComponent(allowedError?.message ?? "no_access")}`, origin)
     );
-  }
-
-  const { data: profile } = await adminClient
-    .schema("timesheet")
-    .from("profiles")
-    .select("id")
-    .eq("id", userId)
-    .single();
-
-  if (!profile) {
-    const { error: insertProfileError } = await adminClient
-      .schema("timesheet")
-      .from("profiles")
-      .insert({ id: userId, contractor_name: fullName ?? null });
-    if (insertProfileError) {
-      return NextResponse.redirect(
-        new URL(`/auth/logowanie?error=profile_insert_failed&detail=${encodeURIComponent(insertProfileError.message)}`, origin)
-      );
-    }
-  }
-
-  const { data: roleRow } = await adminClient
-    .schema("timesheet")
-    .from("user_roles")
-    .select("user_id")
-    .eq("user_id", userId)
-    .single();
-
-  if (!roleRow) {
-    const { error: insertRoleError } = await adminClient
-      .schema("timesheet")
-      .from("user_roles")
-      .insert({ user_id: userId, role: "user" });
-    if (insertRoleError) {
-      return NextResponse.redirect(
-        new URL(`/auth/logowanie?error=role_insert_failed&detail=${encodeURIComponent(insertRoleError.message)}`, origin)
-      );
-    }
   }
 
   return NextResponse.redirect(new URL("/raporty", origin));
