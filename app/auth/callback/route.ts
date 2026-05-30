@@ -21,10 +21,15 @@ export async function GET(request: Request) {
   }
 
   const userEmail = data.session.user.email ?? "";
+  const userId = data.session.user.id;
+  const fullName = data.session.user.user_metadata?.full_name as
+    | string
+    | undefined;
 
-  // Use admin client to bypass RLS — cookies are not yet set at this point
-  // so the regular server client acts as anon and gets blocked by the policy.
+  // All DB queries use adminClient — cookies are not yet written at this
+  // point, so the regular server client acts as anon and gets blocked by RLS.
   const adminClient = createAdminClient();
+
   const { data: allowed } = await adminClient
     .schema("timesheet")
     .from("allowed_emails")
@@ -39,12 +44,7 @@ export async function GET(request: Request) {
     );
   }
 
-  const userId = data.session.user.id;
-  const fullName = data.session.user.user_metadata?.full_name as
-    | string
-    | undefined;
-
-  const { data: profile } = await supabase
+  const { data: profile } = await adminClient
     .schema("timesheet")
     .from("profiles")
     .select("id")
@@ -52,13 +52,13 @@ export async function GET(request: Request) {
     .single();
 
   if (!profile) {
-    await supabase
+    await adminClient
       .schema("timesheet")
       .from("profiles")
       .insert({ id: userId, contractor_name: fullName ?? null });
   }
 
-  const { data: roleRow } = await supabase
+  const { data: roleRow } = await adminClient
     .schema("timesheet")
     .from("user_roles")
     .select("user_id")
@@ -66,7 +66,7 @@ export async function GET(request: Request) {
     .single();
 
   if (!roleRow) {
-    await supabase
+    await adminClient
       .schema("timesheet")
       .from("user_roles")
       .insert({ user_id: userId, role: "user" });
