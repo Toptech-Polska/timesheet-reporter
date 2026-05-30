@@ -11,6 +11,10 @@ const ERROR_MESSAGES: Record<string, string> = {
   unauthorized:
     "Twoje konto Google nie ma dostępu do tej aplikacji. Skontaktuj się z administratorem.",
   auth_callback_error: "Błąd uwierzytelnienia. Spróbuj zalogować się ponownie.",
+  no_code: "Brak kodu autoryzacji. Spróbuj zalogować się ponownie.",
+  exchange_failed: "Błąd wymiany kodu. Spróbuj zalogować się ponownie.",
+  not_allowed: "Twoje konto Google nie ma dostępu do tej aplikacji. Skontaktuj się z administratorem.",
+  admin_client_failed: "Błąd konfiguracji serwera. Skontaktuj się z administratorem.",
 };
 
 function GoogleIcon() {
@@ -46,10 +50,16 @@ function LoginContent() {
 
   async function handleGoogleLogin() {
     const supabase = createClient();
+    // Use NEXT_PUBLIC_SITE_URL if set (production), otherwise fall back to
+    // window.location.origin (local dev). This prevents Netlify deploy-preview
+    // URLs from leaking into the OAuth redirect when behind a custom domain proxy.
+    const siteUrl =
+      process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ??
+      window.location.origin;
     await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
+        redirectTo: `${siteUrl}/auth/callback`,
         scopes: "openid email profile https://www.googleapis.com/auth/drive",
         queryParams: { access_type: "offline", prompt: "consent" },
       },
