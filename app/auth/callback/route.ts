@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
@@ -21,7 +22,10 @@ export async function GET(request: Request) {
 
   const userEmail = data.session.user.email ?? "";
 
-  const { data: allowed } = await supabase
+  // Use admin client to bypass RLS — cookies are not yet set at this point
+  // so the regular server client acts as anon and gets blocked by the policy.
+  const adminClient = createAdminClient();
+  const { data: allowed } = await adminClient
     .schema("timesheet")
     .from("allowed_emails")
     .select("email")
