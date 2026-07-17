@@ -130,10 +130,6 @@ export async function uploadPdfToGoogleDrive(
   const closing = Buffer.from(`\r\n--${boundary}--`);
   const body = Buffer.concat([preamble, pdfBuffer, closing]);
 
-  console.log("Drive upload — token present:", !!googleToken,
-    "token length:", googleToken?.length,
-    "folder:", folderId);
-
   const response = await fetch(
     "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&supportsAllDrives=true",
     {
