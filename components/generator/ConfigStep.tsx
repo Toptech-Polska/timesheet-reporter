@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,6 +56,10 @@ export function ConfigStep({
   const [error, setError] = useState<string | null>(null);
   const [schemaError, setSchemaError] = useState<string | null>(null);
 
+  // Chroni ręcznie wybrane dni (np. odznaczony urlop) przed nadpisaniem
+  // przy powrocie z kroku 2/3 do kroku 1 (remount komponentu).
+  const hydratedFromWizard = useRef(false);
+
   const selectedSchema = schemas.find((s) => s.id === schemaId);
 
   // Fetch work items when schema changes
@@ -107,6 +111,22 @@ export function ConfigStep({
       selectedSchema.working_days_of_week
     );
     setAllDays(days);
+
+    // Pierwsze zamontowanie po powrocie do kroku 1: przywróć dni wybrane
+    // wcześniej w kreatorze zamiast resetować do pełnego zestawu.
+    if (
+      !hydratedFromWizard.current &&
+      wizardState.working_days.length > 0 &&
+      wizardState.schema_id === schemaId &&
+      wizardState.period_month === month &&
+      wizardState.period_year === year
+    ) {
+      hydratedFromWizard.current = true;
+      setSelectedDays(new Set(wizardState.working_days));
+      return;
+    }
+    hydratedFromWizard.current = true;
+
     setSelectedDays(new Set(days));
     setMaxHours(selectedSchema.max_hours_per_day);
   // eslint-disable-next-line react-hooks/exhaustive-deps
