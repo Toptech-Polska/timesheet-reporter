@@ -17,6 +17,40 @@ export interface SaveReportData {
   notes: string | null;
 }
 
+// Tylko pola merytoryczne trafiają do snapshotu drukowanego na raportach —
+// bez pól technicznych (is_active, google_drive_folder_id itd.).
+const PROFILE_SNAPSHOT_FIELDS =
+  "contractor_name, contractor_company, contractor_nip, contractor_address, contractor_email, contractor_bank_account";
+const SETTINGS_SNAPSHOT_FIELDS =
+  "client_name, client_nip, client_address, client_email, client_website";
+
+function validateEntries(entries: EditableEntry[]): string | null {
+  if (!entries.length) {
+    return "Raport musi zawierać co najmniej jeden wpis.";
+  }
+  for (const e of entries) {
+    const hours = Number(e.hours);
+    const rate = Number(e.hourly_rate);
+    if (!Number.isFinite(hours) || hours < 0 || hours > 24) {
+      return "Nieprawidłowa liczba godzin we wpisie raportu.";
+    }
+    if (!Number.isFinite(rate) || rate <= 0) {
+      return "Nieprawidłowa stawka godzinowa we wpisie raportu.";
+    }
+  }
+  return null;
+}
+
+// Kwoty liczone serwerowo z godzin i stawek — nie ufamy wartościom
+// line_total/calculated_amount przysłanym z przeglądarki.
+function computeCalculatedAmount(entries: EditableEntry[]): number {
+  const sum = entries.reduce(
+    (s, e) => s + Number(e.hours) * Number(e.hourly_rate),
+    0
+  );
+  return Math.round(sum * 100) / 100;
+}
+
 export async function saveReport(
   data: SaveReportData
 ): Promise<{ id: string } | { error: string }> {
@@ -27,17 +61,24 @@ export async function saveReport(
     } = await supabase.auth.getUser();
     if (!user) return { error: "Brak autoryzacji" };
 
+    const validationError = validateEntries(data.entries);
+    if (validationError) return { error: validationError };
+
+    const calculated_amount = computeCalculatedAmount(data.entries);
+    const amount_difference =
+      Math.round((data.target_amount - calculated_amount) * 100) / 100;
+
     const [{ data: profile }, { data: settings }] = await Promise.all([
       supabase
         .schema("timesheet")
         .from("profiles")
-        .select("*")
+        .select(PROFILE_SNAPSHOT_FIELDS)
         .eq("id", user.id)
         .maybeSingle(),
       supabase
         .schema("timesheet")
         .from("app_settings")
-        .select("*")
+        .select(SETTINGS_SNAPSHOT_FIELDS)
         .eq("id", 1)
         .maybeSingle(),
     ]);
@@ -54,8 +95,8 @@ export async function saveReport(
         period_month: data.period_month,
         period_year: data.period_year,
         target_amount: data.target_amount,
-        calculated_amount: data.calculated_amount,
-        amount_difference: data.amount_difference,
+        calculated_amount,
+        amount_difference,
         status: data.status,
         invoice_number: data.invoice_number || null,
         notes: data.notes || null,
@@ -116,16 +157,23 @@ export async function deleteReport(id: string): Promise<{ error?: string }> {
     } = await supabase.auth.getUser();
     if (!user) return { error: "Brak autoryzacji" };
 
-    const { error } = await supabase
+    // Usuwać można wyłącznie wersje robocze — zgodnie z komunikatem w UI.
+    const { data: deleted, error } = await supabase
       .schema("timesheet")
       .from("reports")
       .delete()
       .eq("id", id)
-      .eq("user_id", user.id);
+      .eq("user_id", user.id)
+      .eq("status", "draft")
+      .select("id");
 
     if (error) {
       console.error("deleteReport:", error);
       return { error: "Nie udało się usunąć raportu." };
+    }
+
+    if (!deleted || deleted.length === 0) {
+      return { error: "Można usuwać tylko raporty w wersji roboczej." };
     }
 
     revalidatePath("/raporty");
@@ -209,6 +257,9 @@ export async function updateReportEntries(
     } = await supabase.auth.getUser();
     if (!user) return { error: "Brak autoryzacji" };
 
+    const validationError = validateEntries(entries);
+    if (validationError) return { error: validationError };
+
     const { data: report } = await supabase
       .schema("timesheet")
       .from("reports")
@@ -218,6 +269,21 @@ export async function updateReportEntries(
       .maybeSingle();
 
     if (!report) return { error: "Raport nie istnieje lub nie można go edytować." };
+
+    // Kopia zapasowa istniejących wpisów — pozwala je przywrócić, jeśli
+    // insert nowych się nie powiedzie (delete+insert nie jest transakcją).
+    const { data: backup, error: backupError } = await supabase
+      .schema("timesheet")
+      .from("report_entries")
+      .select(
+        "work_date, day_of_week, week_number, work_description, category, hours, hourly_rate, sort_order, is_manually_edited"
+      )
+      .eq("report_id", reportId);
+
+    if (backupError) {
+      console.error("updateReportEntries backup:", backupError);
+      return { error: "Nie udało się zaktualizować wpisów raportu." };
+    }
 
     const { error: deleteError } = await supabase
       .schema("timesheet")
@@ -250,17 +316,38 @@ export async function updateReportEntries(
 
     if (insertError) {
       console.error("updateReportEntries insert:", insertError);
+
+      // Best-effort rollback: przywróć wpisy sprzed edycji.
+      if (backup && backup.length > 0) {
+        const restorePayload = backup.map((b) => ({
+          ...b,
+          report_id: reportId,
+        }));
+        const { error: restoreError } = await supabase
+          .schema("timesheet")
+          .from("report_entries")
+          .insert(restorePayload);
+        if (restoreError) {
+          console.error("updateReportEntries restore failed:", restoreError);
+        }
+      }
+
       return { error: "Nie udało się zaktualizować wpisów raportu." };
     }
 
-    const calculated_amount = entries.reduce((s, e) => s + e.line_total, 0);
-    const amount_difference = (report.target_amount ?? 0) - calculated_amount;
+    const calculated_amount = computeCalculatedAmount(entries);
+    const amount_difference =
+      Math.round(((report.target_amount ?? 0) - calculated_amount) * 100) / 100;
 
-    await supabase
+    const { error: updateError } = await supabase
       .schema("timesheet")
       .from("reports")
       .update({ calculated_amount, amount_difference, status: "draft" })
       .eq("id", reportId);
+
+    if (updateError) {
+      console.error("updateReportEntries report update:", updateError);
+    }
 
     revalidatePath(`/raporty/${reportId}`);
     return {};
