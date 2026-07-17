@@ -28,17 +28,6 @@ export async function updateProfile(data: ProfileData): Promise<ActionResult> {
       return { success: false, error: "Brak autoryzacji" };
     }
 
-    // Numer konta został usunięty z formularza profilu, ale kolumna
-    // contractor_bank_account w bazie jest NOT NULL. Zachowujemy istniejącą
-    // wartość (albo pusty ciąg dla nowego profilu), żeby nie nadpisać danych
-    // i nie naruszać ograniczenia NOT NULL przy INSERT.
-    const { data: existing } = await supabase
-      .schema("timesheet")
-      .from("profiles")
-      .select("contractor_bank_account")
-      .eq("id", user.id)
-      .maybeSingle();
-
     const { error } = await supabase
       .schema("timesheet")
       .from("profiles")
@@ -49,7 +38,6 @@ export async function updateProfile(data: ProfileData): Promise<ActionResult> {
         contractor_nip: data.contractor_nip || null,
         contractor_address: data.contractor_address || null,
         contractor_email: data.contractor_email || null,
-        contractor_bank_account: existing?.contractor_bank_account ?? "",
         updated_at: new Date().toISOString(),
       });
 
