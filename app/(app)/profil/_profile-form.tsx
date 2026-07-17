@@ -25,7 +25,6 @@ const schema = z.object({
       message: "Podaj prawidłowy adres e-mail",
     })
     .optional(),
-  contractor_bank_account: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -36,7 +35,6 @@ interface Profile {
   contractor_nip: string | null;
   contractor_address: string | null;
   contractor_email: string | null;
-  contractor_bank_account: string | null;
 }
 
 export function ProfileForm({ profile }: { profile: Profile | null }) {
@@ -54,7 +52,6 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
       contractor_nip: profile?.contractor_nip ?? "",
       contractor_address: profile?.contractor_address ?? "",
       contractor_email: profile?.contractor_email ?? "",
-      contractor_bank_account: profile?.contractor_bank_account ?? "",
     },
   });
 
@@ -65,7 +62,6 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
       contractor_nip: values.contractor_nip || null,
       contractor_address: values.contractor_address || null,
       contractor_email: values.contractor_email || null,
-      contractor_bank_account: values.contractor_bank_account || null,
     });
 
     if (result.success) {
@@ -138,15 +134,6 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
           {errors.contractor_email && (
             <p className="text-sm text-red-600">{errors.contractor_email.message}</p>
           )}
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="contractor_bank_account">Numer konta bankowego</Label>
-          <Input
-            id="contractor_bank_account"
-            placeholder="PL61 1090 1014 0000 0712 1981 2874"
-            {...register("contractor_bank_account")}
-          />
         </div>
       </div>
 

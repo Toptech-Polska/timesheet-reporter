@@ -9,7 +9,6 @@ export interface ProfileData {
   contractor_nip: string | null;
   contractor_address: string | null;
   contractor_email: string | null;
-  contractor_bank_account: string | null;
 }
 
 export interface ActionResult {
@@ -39,7 +38,6 @@ export async function updateProfile(data: ProfileData): Promise<ActionResult> {
         contractor_nip: data.contractor_nip || null,
         contractor_address: data.contractor_address || null,
         contractor_email: data.contractor_email || null,
-        contractor_bank_account: data.contractor_bank_account || null,
         updated_at: new Date().toISOString(),
       });
 
