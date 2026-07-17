@@ -60,7 +60,7 @@ export async function GET(req: Request) {
     const { data: allEntries, error: entriesError } = await adminClient
       .schema("timesheet")
       .from("report_entries")
-      .select("report_id, work_date, day_of_week, week_number, description, category, hours, hourly_rate, line_total, sort_order")
+      .select("report_id, work_date, day_of_week, week_number, work_description, category, hours, hourly_rate, line_total, sort_order")
       .in("report_id", reportIds)
       .order("report_id")
       .order("sort_order");
@@ -78,7 +78,7 @@ export async function GET(req: Request) {
         work_date: e.work_date,
         day_of_week: e.day_of_week,
         week_number: e.week_number,
-        description: e.description,
+        description: e.work_description,
         category: e.category,
         hours: e.hours,
         hourly_rate: e.hourly_rate,
