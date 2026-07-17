@@ -54,7 +54,7 @@ export function ExportButtons({ reportId }: { reportId: string }) {
         );
       } else if (result.error === "no_folder") {
         showToast(
-          "Skonfiguruj folder Google Drive w ustawieniach administratora",
+          "Folder Google Drive nie został jeszcze przypisany. Skontaktuj się z administratorem",
           "error"
         );
       } else {
