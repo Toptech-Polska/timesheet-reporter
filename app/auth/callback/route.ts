@@ -26,9 +26,8 @@ export async function GET(request: Request) {
     | string
     | undefined;
 
-  // Use adminClient with raw SQL to bypass both RLS and schema exposure limits.
-  // The timesheet schema is not in PostgREST exposed schemas, so .schema("timesheet")
-  // fails even with service role key. Raw SQL has no such restriction.
+  // RPC w schemacie public (service role) — w jednym wywołaniu sprawdza
+  // whitelistę allowed_emails i zakłada profil/rolę przy pierwszym logowaniu.
   const adminClient = createAdminClient();
 
   const { data: allowedData, error: allowedError } = await adminClient.rpc(
