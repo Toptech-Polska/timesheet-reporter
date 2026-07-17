@@ -43,14 +43,20 @@ export async function updateProfile(data: ProfileData): Promise<ActionResult> {
 
     if (error) {
       console.error("updateProfile error:", error);
-      return { success: false, error: "Nie udało się zapisać danych. Spróbuj ponownie." };
+      // TYMCZASOWA DIAGNOSTYKA — pokazuje surowy błąd z bazy w UI.
+      // Do usunięcia po zdiagnozowaniu przyczyny.
+      const diag = [error.code, error.message, error.details, error.hint]
+        .filter(Boolean)
+        .join(" | ");
+      return { success: false, error: `DIAG: ${diag}` };
     }
 
     revalidatePath("/profil");
     return { success: true };
   } catch (e) {
     console.error("updateProfile exception:", e);
-    return { success: false, error: "Wystąpił nieoczekiwany błąd." };
+    const msg = e instanceof Error ? e.message : String(e);
+    return { success: false, error: `DIAG-EXC: ${msg}` };
   }
 }
 
