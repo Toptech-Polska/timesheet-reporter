@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TimeSheet Reporter — Instrukcja użytkownika</title>
+<style>
+  @page {
+    size: A4;
+    margin: 20mm 18mm 20mm 18mm;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    font-family: "DejaVu Sans", "Segoe UI", Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.5;
+    color: #1f2733;
+    margin: 0;
+  }
+
+  @media screen {
+    body { max-width: 820px; margin: 0 auto; padding: 32px 24px 64px; background: #fff; }
+    .cover { padding-top: 24px !important; }
+    h2.part { margin-top: 48px !important; }
+  }
+
+  /* ---- Cover ---- */
+  .cover {
+    page-break-after: always;
+    padding-top: 55mm;
+  }
+  .cover .kicker {
+    font-size: 11pt; letter-spacing: 3px; text-transform: uppercase;
+    color: #2563eb; font-weight: bold;
+  }
+  .cover h1 {
+    font-size: 34pt; margin: 8px 0 4px 0; color: #0f1b2d; line-height: 1.1;
+  }
+  .cover .sub { font-size: 13pt; color: #55627a; margin-top: 6px; }
+  .cover .rule { height: 4px; width: 70mm; background: #2563eb; margin: 22px 0; border-radius: 2px; }
+  .cover .meta {
+    margin-top: 24px; font-size: 9.5pt; color: #6b7688; line-height: 1.8;
+  }
+  .cover .meta strong { color: #1f2733; }
+
+  /* ---- Headings ---- */
+  h2.part {
+    font-size: 17pt; color: #0f1b2d; margin: 0 0 4px 0;
+    padding-bottom: 6px; border-bottom: 3px solid #2563eb;
+    page-break-before: always; page-break-after: avoid;
+  }
+  h2.part .num {
+    display: inline-block; background: #2563eb; color: #fff; font-size: 11pt;
+    width: 24px; height: 24px; line-height: 24px; text-align: center;
+    border-radius: 6px; margin-right: 10px; vertical-align: middle;
+  }
+  h3 {
+    font-size: 12.5pt; color: #14315e; margin: 20px 0 6px 0; page-break-after: avoid;
+  }
+  h4 { font-size: 10.8pt; color: #1f2733; margin: 14px 0 4px 0; page-break-after: avoid; }
+  p { margin: 6px 0; }
+
+  /* ---- Steps ---- */
+  .step { page-break-inside: avoid; margin: 12px 0; padding-left: 40px; position: relative; }
+  .step .badge {
+    position: absolute; left: 0; top: 0;
+    background: #eef4ff; color: #2563eb; border: 2px solid #2563eb;
+    width: 28px; height: 28px; line-height: 24px; text-align: center;
+    border-radius: 50%; font-weight: bold; font-size: 11pt;
+  }
+  .step h4 { margin-top: 2px; }
+
+  /* ---- Callouts ---- */
+  .box { padding: 10px 14px; border-radius: 8px; margin: 10px 0; page-break-inside: avoid; font-size: 10pt; }
+  .box p { margin: 3px 0; }
+  .box .lbl { font-weight: bold; display: block; margin-bottom: 2px; }
+  .tip   { background: #ecfdf5; border-left: 4px solid #10b981; }
+  .tip .lbl { color: #047857; }
+  .note  { background: #eff6ff; border-left: 4px solid #2563eb; }
+  .note .lbl { color: #1d4ed8; }
+  .warn  { background: #fffbeb; border-left: 4px solid #f59e0b; }
+  .warn .lbl { color: #b45309; }
+
+  /* ---- Lists ---- */
+  ul, ol { margin: 6px 0 6px 0; padding-left: 22px; }
+  li { margin: 3px 0; }
+
+  /* ---- Tables ---- */
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 9.5pt; page-break-inside: avoid; }
+  th { background: #14315e; color: #fff; text-align: left; padding: 7px 9px; font-weight: bold; }
+  td { padding: 6px 9px; border-bottom: 1px solid #e2e8f0; vertical-align: top; }
+  tr:nth-child(even) td { background: #f6f8fb; }
+
+  .ui { background: #f1f5f9; border: 1px solid #d5dde8; border-radius: 4px; padding: 1px 6px; font-size: 9.3pt; white-space: nowrap; }
+  code { font-family: "DejaVu Sans Mono", Consolas, monospace; font-size: 9pt; background: #f1f5f9; padding: 1px 4px; border-radius: 3px; }
+
+  /* ---- TOC ---- */
+  .toc { page-break-after: always; }
+  .toc h2 { font-size: 16pt; color: #0f1b2d; border-bottom: 2px solid #cbd5e1; padding-bottom: 6px; }
+  .toc ol { list-style: none; padding-left: 0; }
+  .toc > ol > li { font-weight: bold; margin: 10px 0 4px 0; color: #14315e; font-size: 11.5pt; }
+  .toc ol ol { padding-left: 16px; }
+  .toc ol ol li { font-weight: normal; color: #40506a; font-size: 10pt; margin: 2px 0; }
+</style>
+</head>
+<body>
+
+<!-- ============ COVER ============ -->
+<div class="cover">
+  <div class="kicker">Toptech Polska · b2b.tsps.pl</div>
+  <h1>TimeSheet Reporter</h1>
+  <div class="sub">Instrukcja użytkownika — generowanie miesięcznych raportów współpracy B2B</div>
+  <div class="rule"></div>
+  <div class="meta">
+    <div><strong>Dla kogo:</strong> zleceniobiorcy (użytkownicy) oraz administratorzy</div>
+    <div><strong>Zakres:</strong> od pierwszego logowania do eksportu raportu na Dysk Google</div>
+    <div><strong>Wersja aplikacji:</strong> panel webowy (przeglądarka, komputer i telefon)</div>
+  </div>
+</div>
+
+<!-- ============ TOC ============ -->
+<div class="toc">
+  <h2>Spis treści</h2>
+  <ol>
+    <li>1. Wprowadzenie</li>
+    <li>2. Instrukcja dla użytkownika
+      <ol>
+        <li>2.1 Pierwsze logowanie</li>
+        <li>2.2 Uzupełnienie profilu</li>
+        <li>2.3 Utworzenie schematu pracy</li>
+        <li>2.4 Wygenerowanie raportu — kreator w 3 krokach</li>
+        <li>2.5 Zatwierdzenie raportu</li>
+        <li>2.6 Eksport raportu (PDF, Excel, Dysk Google)</li>
+        <li>2.7 Edycja zatwierdzonego raportu</li>
+      </ol>
+    </li>
+    <li>3. Instrukcja dla administratora
+      <ol>
+        <li>3.1 Wejście do panelu administratora</li>
+        <li>3.2 Nadanie dostępu (lista dozwolonych e-maili)</li>
+        <li>3.3 Zarządzanie użytkownikami i rolami</li>
+        <li>3.4 Przypisanie folderu Dysku Google</li>
+        <li>3.5 Dane zleceniodawcy (nagłówek raportów)</li>
+        <li>3.6 Raporty wszystkich użytkowników i eksport zbiorczy</li>
+      </ol>
+    </li>
+    <li>4. Rozwiązywanie problemów</li>
+  </ol>
+</div>
+
+<!-- ============ 1. WPROWADZENIE ============ -->
+<h2 class="part"><span class="num">1</span>Wprowadzenie</h2>
+
+<p><strong>TimeSheet Reporter</strong> to aplikacja Toptech Polska służąca do generowania miesięcznych raportów czasu pracy (time sheet) dla współpracy B2B. Aplikacja sama proponuje podział godzin między zadania tak, aby suma raportu odpowiadała zaplanowanej kwocie netto, a gotowy dokument można pobrać jako PDF, Excel lub zapisać wprost na Dysku Google.</p>
+
+<p>Z aplikacji korzysta się w przeglądarce (na komputerze i telefonie) pod adresem <span class="ui">b2b.tsps.pl</span>. Logowanie odbywa się kontem Google.</p>
+
+<h3>Dwie role</h3>
+<table>
+  <tr><th style="width:28%">Rola</th><th>Co może robić</th></tr>
+  <tr><td><strong>Użytkownik</strong><br>(zleceniobiorca)</td><td>Uzupełnia swoje dane, tworzy schematy pracy, generuje, zatwierdza i eksportuje własne raporty.</td></tr>
+  <tr><td><strong>Administrator</strong></td><td>Wszystko to, co użytkownik, a dodatkowo: nadaje dostęp nowym osobom, zarządza rolami, przypisuje folder Dysku Google, ustawia dane zleceniodawcy i przegląda raporty wszystkich osób.</td></tr>
+</table>
+
+<div class="box note"><span class="lbl">Jak poruszać się po aplikacji</span>
+<p>Po lewej stronie (na telefonie — pod przyciskiem menu <span class="ui">☰</span>) znajduje się menu z zakładkami: <span class="ui">Raporty</span>, <span class="ui">Schematy</span>, <span class="ui">Profil</span>. Administrator widzi dodatkowo <span class="ui">Panel admina</span>. Na dole menu jest adres zalogowanej osoby oraz przycisk <span class="ui">Wyloguj</span>.</p>
+</div>
+
+<h3>Najkrótsza droga do pierwszego raportu</h3>
+<p>Jeśli to Twój pierwszy kontakt z aplikacją, wykonaj po kolei: <strong>zaloguj się → uzupełnij profil → utwórz schemat pracy → wygeneruj raport → zatwierdź → eksportuj</strong>. Każdy z tych kroków opisujemy szczegółowo w rozdziale 2.</p>
+
+<!-- ============ 2. UŻYTKOWNIK ============ -->
+<h2 class="part"><span class="num">2</span>Instrukcja dla użytkownika</h2>
+
+<h3>2.1 Pierwsze logowanie</h3>
+<div class="step"><span class="badge">1</span>
+<h4>Otwórz aplikację</h4>
+<p>W przeglądarce wejdź na adres <span class="ui">b2b.tsps.pl</span>. Pojawi się ekran logowania z logo Toptech.</p>
+</div>
+<div class="step"><span class="badge">2</span>
+<h4>Kliknij „Zaloguj się przez Google"</h4>
+<p>Wybierz przycisk <span class="ui">Zaloguj się przez Google</span> i wskaż swoje konto Google. Zaloguj się tym samym adresem, który podałeś administratorowi.</p>
+</div>
+<div class="step"><span class="badge">3</span>
+<h4>Wyraź zgodę na dostęp do Dysku Google</h4>
+<p>Przy pierwszym logowaniu Google poprosi o zgodę na dostęp do Twojego Dysku. Ta zgoda jest potrzebna, aby później móc zapisywać raporty PDF prosto na Dysku Google. Zaakceptuj ją.</p>
+</div>
+
+<div class="box warn"><span class="lbl">Komunikat „Twoje konto Google nie ma dostępu do tej aplikacji"</span>
+<p>Oznacza, że Twojego adresu nie ma jeszcze na liście osób uprawnionych. Skontaktuj się z administratorem, aby dodał Twój adres e-mail (patrz rozdział 3.2). Bez tego logowanie się nie powiedzie.</p>
+</div>
+
+<h3>2.2 Uzupełnienie profilu</h3>
+<p>Zanim wygenerujesz pierwszy raport, uzupełnij swoje dane — trafią one do nagłówka każdego raportu. Wejdź w zakładkę <span class="ui">Profil</span>.</p>
+
+<h4>Sekcja „Moje dane"</h4>
+<p>Wypełnij pola i kliknij <span class="ui">Zapisz zmiany</span>:</p>
+<table>
+  <tr><th style="width:34%">Pole</th><th>Opis</th></tr>
+  <tr><td>Imię i nazwisko <em>(wymagane)</em></td><td>Widoczne na raportach jako dane zleceniobiorcy.</td></tr>
+  <tr><td>Firma</td><td>Nazwa Twojej działalności (opcjonalnie).</td></tr>
+  <tr><td>NIP</td><td>10 cyfr (opcjonalnie).</td></tr>
+  <tr><td>Adres</td><td>Adres do dokumentów (opcjonalnie).</td></tr>
+  <tr><td>E-mail kontaktowy</td><td>Adres kontaktowy (opcjonalnie).</td></tr>
+  <tr><td>Numer konta bankowego</td><td>Numer rachunku (opcjonalnie).</td></tr>
+</table>
+
+<div class="box note"><span class="lbl">Pozostałe sekcje na stronie Profil</span>
+<p><strong>Google Drive</strong> — pokazuje folder na raporty przypisany Ci przez administratora (tylko do odczytu). <strong>Zmiana hasła</strong> — ustawienie hasła do konta. <strong>Dane zleceniodawcy</strong> — dane firmy zamawiającej, ustawiane przez administratora (tylko do odczytu).</p>
+</div>
+
+<h3>2.3 Utworzenie schematu pracy</h3>
+<p>Schemat pracy to szablon zadań (pozycji), na podstawie którego aplikacja generuje raport. Każda pozycja ma swoją stawkę godzinową i „wagę" (proporcję), według której rozdzielane są godziny. Schemat tworzysz raz i używasz go co miesiąc.</p>
+<p>Wejdź w zakładkę <span class="ui">Schematy</span> i kliknij <span class="ui">Nowy schemat</span>.</p>
+
+<div class="step"><span class="badge">1</span>
+<h4>Podstawowe informacje</h4>
+<p><strong>Nazwa schematu</strong> (wymagana), np. „Standardowy kontrakt B2B", oraz opcjonalny <strong>Opis</strong>.</p>
+</div>
+<div class="step"><span class="badge">2</span>
+<h4>Konfiguracja czasu pracy</h4>
+<p><strong>Dni robocze</strong> — kliknij dni tygodnia (Pon–Nd), które są dla Ciebie dniami pracy (domyślnie Pon–Pt). <strong>Maks. godzin dziennie</strong> — ile najwyżej godzin może przypaść na jeden dzień (domyślnie 8).</p>
+</div>
+<div class="step"><span class="badge">3</span>
+<h4>Pozycje pracy</h4>
+<p>Dodaj co najmniej jedną pozycję. Dla każdej podaj: <strong>Opis</strong>, <strong>Kategorię</strong>, <strong>Stawkę godzinową</strong> (min. 100 zł/h) oraz <strong>Proporcję</strong> (od 0,5 do 10 — im wyższa, tym więcej godzin trafi na tę pozycję). Możesz też opcjonalnie ustawić daty aktywności pozycji (od / do).</p>
+</div>
+<div class="step"><span class="badge">4</span>
+<h4>Zapisz</h4>
+<p>Kliknij <span class="ui">Zapisz schemat</span>. Schemat pojawi się na liście i będzie dostępny w kreatorze raportu.</p>
+</div>
+
+<div class="box tip"><span class="lbl">Wskazówka</span>
+<p>Proporcje nie muszą sumować się do żadnej konkretnej liczby — liczy się ich wzajemny stosunek. Pozycja o proporcji 2 dostanie mniej więcej dwa razy więcej godzin niż pozycja o proporcji 1.</p>
+</div>
+
+<h3>2.4 Wygenerowanie raportu — kreator w 3 krokach</h3>
+<p>Wejdź w zakładkę <span class="ui">Raporty</span> i kliknij <span class="ui">Nowy raport</span>. Kreator prowadzi przez trzy kroki widoczne na górze: <strong>Konfiguracja → Proporcje → Podgląd raportu</strong>.</p>
+
+<h4>Krok 1 — Konfiguracja</h4>
+<ul>
+  <li><strong>Schemat pracy</strong> — wybierz utworzony wcześniej schemat. Aplikacja wczyta jego pozycje.</li>
+  <li><strong>Okres rozliczeniowy</strong> — wybierz miesiąc i rok.</li>
+  <li><strong>Kwota docelowa netto (PLN)</strong> — kwota, do której ma się zsumować raport, np. <code>10 000</code>.</li>
+  <li><strong>Dni robocze</strong> — kalendarz miesiąca z zaznaczonymi dniami pracy. Kliknięciem możesz odznaczyć np. urlop czy dzień wolny.</li>
+</ul>
+<p>Kliknij <span class="ui">Dalej →</span>. Aplikacja obliczy wstępny podział godzin.</p>
+
+<div class="box warn"><span class="lbl">Komunikat „Kwota … jest niemożliwa do osiągnięcia"</span>
+<p>Oznacza, że przy wybranych dniach i stawkach nie da się uzbierać podanej kwoty. Zmniejsz kwotę docelową, zaznacz więcej dni roboczych albo podwyższ stawki w schemacie.</p>
+</div>
+
+<h4>Krok 2 — Proporcje</h4>
+<p>Zobaczysz proponowany <strong>podział godzin</strong> na poszczególne pozycje. Możesz tu:</p>
+<ul>
+  <li>zmienić <strong>proporcję</strong> dowolnej pozycji lub ją usunąć — po zmianie kliknij <span class="ui">Przelicz</span>;</li>
+  <li>dodać <strong>pozycję spoza schematu</strong> (przycisk <span class="ui">Dodaj pozycję spoza schematu</span>) — z opcją zapisania jej także w schemacie na przyszłość.</li>
+</ul>
+<p>Pod tabelą aplikacja pokazuje <strong>różnicę</strong> względem kwoty docelowej: na zielono, gdy suma się zgadza (różnica do 50 zł jest akceptowalna), na żółto/czerwono z podpowiedzią, gdy trzeba dodać lub odjąć pół godziny.</p>
+<p>Gdy podział Ci odpowiada, zaznacz <span class="ui">Potwierdzam proponowany podział godzin…</span> i kliknij <span class="ui">Generuj raport →</span>.</p>
+
+<h4>Krok 3 — Podgląd raportu</h4>
+<ul>
+  <li>Wpisz opcjonalnie <strong>Nr faktury / dokumentu</strong> (np. <code>FV 2026/03/001</code>).</li>
+  <li>Sprawdź tabelę raportu. Poszczególne wpisy (godziny, stawki, opisy) możesz jeszcze poprawić bezpośrednio w tabeli; godziny zaokrąglają się do pełnych połówek.</li>
+  <li>Na dole widać <strong>Sumę łączną</strong> i ewentualną różnicę względem celu.</li>
+</ul>
+<p>Masz teraz dwie możliwości zapisu:</p>
+<table>
+  <tr><th style="width:34%">Przycisk</th><th>Efekt</th></tr>
+  <tr><td><span class="ui">Zapisz wersję roboczą</span></td><td>Zapisuje raport jako roboczy — możesz do niego wrócić i dokończyć później. Roboczego raportu jeszcze nie da się eksportować.</td></tr>
+  <tr><td><span class="ui">Zatwierdź raport</span></td><td>Zapisuje i od razu zatwierdza raport. Dopiero zatwierdzony raport można eksportować.</td></tr>
+</table>
+
+<h3>2.5 Zatwierdzenie raportu</h3>
+<p>Zatwierdzenie to potwierdzenie, że raport jest gotowy. Możesz zatwierdzić raport od razu w kroku 3 kreatora albo później — otwierając raport z listy i klikając <span class="ui">Zatwierdź raport</span>. Aplikacja poprosi o potwierdzenie w okienku.</p>
+<div class="box note"><span class="lbl">Statusy raportu</span>
+<p><strong>Wersja robocza</strong> — w przygotowaniu. <strong>Zatwierdzony</strong> — gotowy, można eksportować. <strong>Wyeksportowany</strong> — został już zapisany/pobrany.</p>
+</div>
+
+<h3>2.6 Eksport raportu (PDF, Excel, Dysk Google)</h3>
+<p>Przyciski eksportu pojawiają się na górze <strong>zatwierdzonego</strong> raportu. Otwórz raport z listy <span class="ui">Raporty</span> — zobaczysz trzy przyciski:</p>
+<table>
+  <tr><th style="width:30%">Przycisk</th><th>Co robi</th></tr>
+  <tr><td><span class="ui">↓ PDF</span></td><td>Generuje i pobiera raport w formacie PDF na Twój komputer/telefon.</td></tr>
+  <tr><td><span class="ui">↓ Excel</span></td><td>Pobiera raport w formacie XLSX (Excel).</td></tr>
+  <tr><td><span class="ui">↑ Google Drive</span></td><td>Zapisuje raport PDF wprost do przypisanego Ci folderu na Dysku Google i otwiera go w nowej karcie.</td></tr>
+</table>
+
+<h4>Zapis na Dysk Google — krok po kroku</h4>
+<div class="step"><span class="badge">1</span>
+<h4>Kliknij „↑ Google Drive"</h4>
+<p>Aplikacja wygeneruje PDF i prześle go do folderu przypisanego przez administratora.</p>
+</div>
+<div class="step"><span class="badge">2</span>
+<h4>Poczekaj na potwierdzenie</h4>
+<p>Pojawi się komunikat <span class="ui">Zapisano w Google Drive</span>, a plik otworzy się w nowej karcie przeglądarki. Nazwa pliku ma postać <code>timesheet-ROK-MM-imię-nazwisko.pdf</code>.</p>
+</div>
+
+<div class="box warn"><span class="lbl">Jeśli zapis na Dysk się nie powiedzie</span>
+<p><strong>„Zaloguj się ponownie aby udzielić dostępu do Google Drive"</strong> — wyloguj się i zaloguj ponownie, a przy logowaniu potwierdź zgodę na dostęp do Dysku.<br>
+<strong>„Folder Google Drive nie został jeszcze przypisany. Skontaktuj się z administratorem"</strong> — administrator musi przypisać Ci folder (rozdział 3.4). Folder możesz sprawdzić na swojej stronie <span class="ui">Profil</span> w sekcji Google Drive.</p>
+</div>
+
+<h3>2.7 Edycja zatwierdzonego raportu</h3>
+<p>Zatwierdzony raport można jeszcze otworzyć i poprawić. Uwaga: <strong>zapisanie zmian cofa raport do wersji roboczej</strong> i trzeba go ponownie zatwierdzić, zanim znów będzie można go eksportować. Aplikacja ostrzega o tym żółtym banerem i pyta o potwierdzenie.</p>
+
+<!-- ============ 3. ADMINISTRATOR ============ -->
+<h2 class="part"><span class="num">3</span>Instrukcja dla administratora</h2>
+
+<p>Administrator ma dostęp do wszystkich funkcji użytkownika oraz do <strong>Panelu admina</strong>. Przez panel zarządza się dostępem, użytkownikami, folderami Dysku Google, danymi zleceniodawcy i raportami całego zespołu.</p>
+
+<h3>3.1 Wejście do panelu administratora</h3>
+<p>W menu po lewej kliknij <span class="ui">Panel admina</span>. Otworzy się panel z własnym menu: <span class="ui">Dashboard</span>, <span class="ui">Użytkownicy</span>, <span class="ui">Raporty</span>, <span class="ui">Ustawienia</span>. Aby wrócić do zwykłej części aplikacji, użyj <span class="ui">Wróć do aplikacji</span>.</p>
+
+<h3>3.2 Nadanie dostępu (lista dozwolonych e-maili)</h3>
+<p>Zalogować się mogą wyłącznie osoby, których adres e-mail jest na liście dostępu. To pierwszy krok przy dołączaniu nowej osoby do zespołu.</p>
+<div class="step"><span class="badge">1</span>
+<h4>Wejdź w „Użytkownicy"</h4>
+<p>W sekcji <strong>Dostęp do aplikacji</strong> znajdziesz listę dozwolonych adresów.</p>
+</div>
+<div class="step"><span class="badge">2</span>
+<h4>Dodaj adres</h4>
+<p>Wpisz adres e-mail nowej osoby (opcjonalnie notatkę, np. imię i nazwisko) i kliknij <span class="ui">Dodaj dostęp</span>. Od tej chwili osoba może zalogować się swoim kontem Google.</p>
+</div>
+<p>Adres można w każdej chwili usunąć przyciskiem <span class="ui">Usuń</span> (nie można usunąć własnego adresu).</p>
+
+<h3>3.3 Zarządzanie użytkownikami i rolami</h3>
+<p>W zakładce <span class="ui">Użytkownicy</span>, w tabeli poniżej listy dostępu, widać wszystkie konta wraz z rolą, statusem i datą rejestracji. Dostępne są filtry (rola, status) i wyszukiwarka. Przy każdej osobie masz trzy działania:</p>
+<table>
+  <tr><th style="width:26%">Działanie</th><th>Opis</th></tr>
+  <tr><td><span class="ui">Podgląd</span></td><td>Otwiera stronę osoby (dane, rola, folder Dysku Google — patrz 3.4).</td></tr>
+  <tr><td><span class="ui">Zmień rolę</span></td><td>Przełącza między rolą Użytkownik a Administrator (po potwierdzeniu). Nie można zmienić własnej roli.</td></tr>
+  <tr><td><span class="ui">Dezaktywuj / Aktywuj</span></td><td>Blokuje lub przywraca dostęp do aplikacji. Nie można dezaktywować własnego konta.</td></tr>
+</table>
+
+<h3>3.4 Przypisanie folderu Dysku Google</h3>
+<p>Aby użytkownik mógł zapisywać raporty na Dysk (przycisk <span class="ui">↑ Google Drive</span>), musisz przypisać mu folder. Bez tego przy próbie eksportu zobaczy komunikat o braku folderu.</p>
+<div class="step"><span class="badge">1</span>
+<h4>Przygotuj folder na Dysku Google</h4>
+<p>Utwórz (lub wskaż) folder na Dysku Google i otwórz go. Z adresu URL skopiuj identyfikator folderu — to ciąg po <code>drive.google.com/drive/folders/</code>.</p>
+</div>
+<div class="step"><span class="badge">2</span>
+<h4>Otwórz stronę użytkownika</h4>
+<p>W zakładce <span class="ui">Użytkownicy</span> kliknij <span class="ui">Podgląd</span> przy wybranej osobie. Przejdź do sekcji <strong>Google Drive — folder raportów</strong>.</p>
+</div>
+<div class="step"><span class="badge">3</span>
+<h4>Wpisz dane folderu i zapisz</h4>
+<p><strong>ID folderu Google Drive</strong> — wklej skopiowany identyfikator. <strong>Nazwa folderu (informacyjna)</strong> — dowolna etykieta widoczna dla użytkownika w jego profilu (np. imię i nazwisko). Kliknij <span class="ui">Zapisz</span>.</p>
+</div>
+<div class="box note"><span class="lbl">Ważne</span>
+<p>Folder musi być udostępniony tak, aby dana osoba miała do niego prawo zapisu (raport zapisywany jest w kontekście jej konta Google). Najprościej: udostępnij folder jej adresowi Google z uprawnieniem edycji.</p>
+</div>
+
+<h3>3.5 Dane zleceniodawcy (nagłówek raportów)</h3>
+<p>W zakładce <span class="ui">Ustawienia</span> ustawiasz dane firmy zamawiającej, które są drukowane w nagłówku wszystkich raportów. Wypełnij i kliknij <span class="ui">Zapisz zmiany</span>:</p>
+<table>
+  <tr><th style="width:34%">Pole</th><th>Uwagi</th></tr>
+  <tr><td>Nazwa firmy <em>(wymagane)</em></td><td>Nazwa zleceniodawcy.</td></tr>
+  <tr><td>NIP <em>(wymagane)</em></td><td>Dokładnie 10 cyfr.</td></tr>
+  <tr><td>Adres <em>(wymagane)</em></td><td>Adres firmy.</td></tr>
+  <tr><td>E-mail</td><td>Opcjonalnie.</td></tr>
+  <tr><td>Strona www</td><td>Opcjonalnie.</td></tr>
+</table>
+<div class="box note"><span class="lbl">Uwaga</span>
+<p>Zmiany dotyczą <strong>nowych</strong> raportów. Raporty już zatwierdzone zachowują dane z chwili zatwierdzenia (nie zmieniają się wstecz).</p>
+</div>
+
+<h3>3.6 Raporty wszystkich użytkowników i eksport zbiorczy</h3>
+<p>Zakładka <span class="ui">Raporty</span> w panelu admina pokazuje raporty wszystkich osób. Możesz je filtrować po roku, miesiącu i statusie oraz wyszukiwać po nazwisku lub e-mailu. Tabela zawiera m.in.: użytkownika, okres, nr faktury, kwotę docelową i wyliczoną, różnicę oraz status. Na dole widać podsumowanie sum.</p>
+<ul>
+  <li><span class="ui">Podgląd</span> — otwiera pojedynczy raport wybranej osoby.</li>
+  <li><span class="ui">Eksport zbiorczy XLSX</span> — pobiera jeden plik Excel ze wszystkimi raportami spełniającymi ustawione filtry (przydatne do rozliczeń miesięcznych całego zespołu).</li>
+</ul>
+
+<!-- ============ 4. PROBLEMY ============ -->
+<h2 class="part"><span class="num">4</span>Rozwiązywanie problemów</h2>
+
+<table>
+  <tr><th style="width:42%">Sytuacja / komunikat</th><th>Rozwiązanie</th></tr>
+  <tr><td>„Twoje konto Google nie ma dostępu do tej aplikacji"</td><td>Administrator musi dodać Twój adres e-mail do listy dostępu (rozdz. 3.2).</td></tr>
+  <tr><td>Nie widzę przycisków eksportu (PDF / Excel / Google Drive)</td><td>Raport musi być najpierw <strong>zatwierdzony</strong>. Przy wersji roboczej przyciski się nie pojawiają (rozdz. 2.5).</td></tr>
+  <tr><td>„Zaloguj się ponownie aby udzielić dostępu do Google Drive"</td><td>Wyloguj się i zaloguj ponownie, potwierdzając zgodę na dostęp do Dysku Google.</td></tr>
+  <tr><td>„Folder Google Drive nie został jeszcze przypisany. Skontaktuj się z administratorem"</td><td>Administrator musi przypisać Ci folder Dysku (rozdz. 3.4). Status folderu widać w <span class="ui">Profil</span> → Google Drive.</td></tr>
+  <tr><td>„Kwota … jest niemożliwa do osiągnięcia"</td><td>Zmniejsz kwotę docelową, zaznacz więcej dni roboczych lub podwyższ stawki w schemacie (rozdz. 2.4, krok 1).</td></tr>
+  <tr><td>„Wybierz schemat z co najmniej jedną pozycją pracy"</td><td>Najpierw utwórz schemat pracy z przynajmniej jedną pozycją (rozdz. 2.3).</td></tr>
+  <tr><td>Suma raportu nie zgadza się z kwotą docelową</td><td>W kroku 2 (Proporcje) skorzystaj z podpowiedzi „dodaj/odejmij 0,5 h" albo popraw godziny w kroku 3. Różnica do 50 zł jest akceptowalna.</td></tr>
+  <tr><td>Po edycji raport wrócił do wersji roboczej</td><td>To normalne — każda zmiana w zatwierdzonym raporcie cofa go do wersji roboczej. Zatwierdź go ponownie (rozdz. 2.7).</td></tr>
+  <tr><td>Nie mogę zmienić własnej roli / dezaktywować siebie</td><td>To celowe zabezpieczenie. Poproś innego administratora.</td></tr>
+</table>
+
+<div class="box tip"><span class="lbl">Potrzebujesz pomocy?</span>
+<p>Jeśli problem się powtarza lub czegoś brakuje w tej instrukcji — skontaktuj się z administratorem aplikacji w Toptech Polska.</p>
+</div>
+
+</body>
+</html>

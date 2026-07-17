@@ -15,6 +15,7 @@ import {
   X,
   Clock,
   LayoutGrid,
+  BookOpen,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
@@ -91,6 +92,15 @@ export function Sidebar({ userEmail, isAdmin }: SidebarProps) {
         <p className="text-xs text-slate-400 truncate mb-3" title={userEmail}>
           {userEmail}
         </p>
+        <a
+          href="/instrukcja.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors mb-1"
+        >
+          <BookOpen className="size-4 shrink-0" />
+          Instrukcja
+        </a>
         <a
           href="https://tsps.pl/"
           target="_blank"

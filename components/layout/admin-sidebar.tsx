@@ -16,6 +16,7 @@ import {
   X,
   ArrowLeft,
   LayoutGrid,
+  BookOpen,
 } from "lucide-react";
 
 interface AdminSidebarProps {
@@ -93,6 +94,15 @@ export function AdminSidebar({ userEmail }: AdminSidebarProps) {
           <ArrowLeft className="size-4 shrink-0" />
           Wróć do aplikacji
         </Link>
+        <a
+          href="/instrukcja.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors mb-1"
+        >
+          <BookOpen className="size-4 shrink-0" />
+          Instrukcja
+        </a>
         <a
           href="https://tsps.pl/"
           target="_blank"
