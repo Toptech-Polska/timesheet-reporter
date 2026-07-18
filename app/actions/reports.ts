@@ -15,6 +15,8 @@ export interface SaveReportData {
   invoice_number: string | null;
   entries: EditableEntry[];
   notes: string | null;
+  /** Konfiguracja generatora (tryb, schematy, wagi) — do odtworzenia ustawień */
+  generation_config?: Record<string, unknown> | null;
 }
 
 // Tylko pola merytoryczne trafiają do snapshotu drukowanego na raportach —
@@ -100,6 +102,7 @@ export async function saveReport(
         status: data.status,
         invoice_number: data.invoice_number || null,
         notes: data.notes || null,
+        generation_config: data.generation_config ?? null,
         contractor_snapshot: profile ?? {},
         client_snapshot: settings ?? {},
         approved_at:
@@ -124,6 +127,8 @@ export async function saveReport(
       hourly_rate: e.hourly_rate,
       sort_order: i,
       is_manually_edited: e.is_manually_edited,
+      schema_id: e.schema_id ?? null,
+      schema_name: e.schema_name ?? null,
     }));
 
     const { error: entriesError } = await supabase
@@ -276,7 +281,7 @@ export async function updateReportEntries(
       .schema("timesheet")
       .from("report_entries")
       .select(
-        "work_date, day_of_week, week_number, work_description, category, hours, hourly_rate, sort_order, is_manually_edited"
+        "work_date, day_of_week, week_number, work_description, category, hours, hourly_rate, sort_order, is_manually_edited, schema_id, schema_name"
       )
       .eq("report_id", reportId);
 
@@ -307,6 +312,8 @@ export async function updateReportEntries(
       hourly_rate: e.hourly_rate,
       sort_order: i,
       is_manually_edited: e.is_manually_edited,
+      schema_id: e.schema_id ?? null,
+      schema_name: e.schema_name ?? null,
     }));
 
     const { error: insertError } = await supabase

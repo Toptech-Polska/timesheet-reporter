@@ -13,9 +13,10 @@ const now = new Date();
 
 const INITIAL_STATE: WizardState = {
   step: 1,
+  schema_picks: [],
+  mode: "cascade",
   schema_id: null,
   schema_name: "",
-  work_items: [],
   period_month: now.getMonth() + 1,
   period_year: now.getFullYear(),
   target_amount: 0,

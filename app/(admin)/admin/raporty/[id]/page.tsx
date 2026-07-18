@@ -72,6 +72,8 @@ export default async function AdminReportDetailPage({
     line_total: e.line_total as number,
     sort_order: e.sort_order as number,
     is_manually_edited: e.is_manually_edited as boolean,
+    schema_id: (e.schema_id as string | null) ?? null,
+    schema_name: (e.schema_name as string | null) ?? null,
   }));
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

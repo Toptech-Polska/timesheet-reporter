@@ -88,6 +88,16 @@ export function ReportPreview({
       invoice_number: invoiceNumber.trim() || null,
       entries,
       notes: null,
+      generation_config: {
+        mode: wizardState.mode,
+        max_hours_per_day: wizardState.max_hours_per_day,
+        schemas: wizardState.schema_picks.map((p, i) => ({
+          schema_id: p.schema_id,
+          schema_name: p.schema_name,
+          priority: i + 1,
+          weight: p.weight,
+        })),
+      },
     });
 
     setLoading(false);

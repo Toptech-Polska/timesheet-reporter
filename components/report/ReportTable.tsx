@@ -81,6 +81,14 @@ export function ReportTable({
 }: ReportTableProps) {
   const weekGroups = useMemo(() => buildWeekGroups(entries), [entries]);
 
+  // Etykiety schematów pokazujemy tylko, gdy raport faktycznie łączy >1 schemat
+  const showSchemaLabels = useMemo(() => {
+    const names = new Set(
+      entries.map((e) => e.schema_name).filter((n): n is string => !!n)
+    );
+    return names.size > 1;
+  }, [entries]);
+
   const monthHours = entries.reduce((s, e) => s + e.hours, 0);
   const monthAmount = entries.reduce((s, e) => s + e.line_total, 0);
 
@@ -163,6 +171,11 @@ export function ReportTable({
                                 onUpdateEntry(entryIdx, "description", v)
                               }
                             />
+                            {showSchemaLabels && entry.schema_name && (
+                              <span className="mt-1 inline-block rounded bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 text-[11px] font-medium text-slate-500 dark:text-slate-400">
+                                {entry.schema_name}
+                              </span>
+                            )}
                           </td>
                           <td className="px-3 py-2">
                             <ReportCell

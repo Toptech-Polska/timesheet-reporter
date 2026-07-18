@@ -234,35 +234,49 @@
 <p>Proporcje nie muszą sumować się do żadnej konkretnej liczby — liczy się ich wzajemny stosunek. Pozycja o proporcji 2 dostanie mniej więcej dwa razy więcej godzin niż pozycja o proporcji 1.</p>
 </div>
 
+<div class="box tip"><span class="lbl">Kilka schematów</span>
+<p>Możesz mieć dowolnie wiele schematów (np. osobny na pracę pon–pt i osobny na soboty albo różne typy kontraktów) i <strong>łączyć je w jednym raporcie</strong> — kreator raportu pozwala wybrać kilka schematów naraz i rozdzielić między nie godziny kaskadowo lub według wag procentowych (szczegóły w sekcji 2.4).</p>
+</div>
+
 <h3>2.4 Wygenerowanie raportu — kreator w 3 krokach</h3>
 <p>Wejdź w zakładkę <span class="ui">Raporty</span> i kliknij <span class="ui">Nowy raport</span>. Kreator prowadzi przez trzy kroki widoczne na górze: <strong>Konfiguracja → Proporcje → Podgląd raportu</strong>.</p>
 
 <h4>Krok 1 — Konfiguracja</h4>
 <ul>
-  <li><strong>Schemat pracy</strong> — wybierz utworzony wcześniej schemat. Aplikacja wczyta jego pozycje.</li>
+  <li><strong>Schemat 1 — priorytet</strong> — wybierz utworzony wcześniej schemat (pole obowiązkowe). Aplikacja wczyta jego pozycje.</li>
+  <li><strong>Dodaj kolejny schemat</strong> (opcjonalnie) — jeśli masz więcej schematów, możesz dołączyć je do raportu przyciskiem <span class="ui">+ Dodaj kolejny schemat</span>. Możesz wybrać najwyżej tyle schematów, ile masz aktywnych w profilu; każdy schemat tylko raz. Kolejność na liście ma znaczenie — to priorytet (schemat 1 jest najważniejszy).</li>
+  <li><strong>Sposób łączenia schematów</strong> — przy co najmniej dwóch schematach wybierz jeden z dwóch trybów:
+    <table>
+      <tr><th style="width:34%">Tryb</th><th>Jak działa</th></tr>
+      <tr><td><span class="ui">Kaskada priorytetów</span></td><td>Raport najpierw wypełnia schemat 1. Kolejny schemat wchodzi dopiero wtedy, gdy dni schematu wyżej są już zapełnione do limitu godzin, a kwota docelowa nadal nie jest osiągnięta — i tak dalej, w dół listy.</td></tr>
+      <tr><td><span class="ui">Wagi procentowe</span></td><td>Godziny raportu dzielą się między schematy według podanych procentów (np. 50% / 25% / 25%). Suma wag musi wynosić <strong>100%</strong>. Jeśli któryś schemat ma za mało dni, by pomieścić swoją część, nadwyżka automatycznie przechodzi na pozostałe schematy proporcjonalnie do ich wag.</td></tr>
+    </table>
+  </li>
   <li><strong>Okres rozliczeniowy</strong> — wybierz miesiąc i rok.</li>
   <li><strong>Kwota docelowa netto (PLN)</strong> — kwota, do której ma się zsumować raport, np. <code>10 000</code>.</li>
-  <li><strong>Dni robocze</strong> — kalendarz miesiąca z zaznaczonymi dniami pracy. Kliknięciem możesz odznaczyć np. urlop czy dzień wolny.</li>
+  <li><strong>Dni robocze</strong> — kalendarz miesiąca z zaznaczonymi dniami pracy. Przy kilku schematach kalendarz pokazuje <strong>sumę dni</strong> wszystkich wybranych schematów (np. schemat 1: pon–pt, schemat 2: soboty → widzisz pon–sob). Kliknięciem możesz odznaczyć np. urlop czy dzień wolny.</li>
+  <li><strong>Maks. godzin dziennie</strong> — jeden wspólny limit dla całego dnia, niezależnie od liczby schematów. W jednym dniu mogą pojawić się godziny z różnych schematów (np. 6 h + 2 h), ale ich suma nigdy nie przekroczy tego limitu. Domyślnie podpowiadany z pierwszego schematu.</li>
 </ul>
 <p>Kliknij <span class="ui">Dalej →</span>. Aplikacja obliczy wstępny podział godzin.</p>
 
-<div class="box warn"><span class="lbl">Komunikat „Kwota … jest niemożliwa do osiągnięcia"</span>
-<p>Oznacza, że przy wybranych dniach i stawkach nie da się uzbierać podanej kwoty. Zmniejsz kwotę docelową, zaznacz więcej dni roboczych albo podwyższ stawki w schemacie.</p>
+<div class="box warn"><span class="lbl">Komunikat „Wybrane schematy nie pokrywają pełnej kwoty…"</span>
+<p>Oznacza, że przy wybranych dniach, limicie godzin i stawkach nie da się uzbierać podanej kwoty. Zmniejsz kwotę docelową, zaznacz więcej dni roboczych, dodaj kolejny schemat (z innymi dniami pracy) albo zwiększ limit godzin dziennie. Uwaga: jeśli schematy mają <em>te same</em> dni robocze, dodanie kolejnego schematu w trybie kaskady nie zwiększa pojemności — dni są już zapełnione przez schemat o wyższym priorytecie.</p>
 </div>
 
 <h4>Krok 2 — Proporcje</h4>
-<p>Zobaczysz proponowany <strong>podział godzin</strong> na poszczególne pozycje. Możesz tu:</p>
+<p>Zobaczysz proponowany <strong>podział godzin</strong> na poszczególne pozycje. Przy kilku schematach tabela jest pogrupowana — każdy schemat ma swój nagłówek z sumą godzin i kwoty, a nad tabelą widać wybrany tryb łączenia (kaskada lub wagi). Możesz tu:</p>
 <ul>
-  <li>zmienić <strong>proporcję</strong> dowolnej pozycji lub ją usunąć — po zmianie kliknij <span class="ui">Przelicz</span>;</li>
-  <li>dodać <strong>pozycję spoza schematu</strong> (przycisk <span class="ui">Dodaj pozycję spoza schematu</span>) — z opcją zapisania jej także w schemacie na przyszłość.</li>
+  <li>zmienić <strong>proporcję</strong> dowolnej pozycji lub ją usunąć — po zmianie kliknij <span class="ui">Przelicz</span> (każdy schemat musi zachować co najmniej jedną pozycję);</li>
+  <li>dodać <strong>pozycję spoza schematu</strong> (przycisk <span class="ui">Dodaj pozycję spoza schematu</span>) — przy kilku schematach wskazujesz, do którego schematu ma trafić; opcjonalnie zapiszesz ją w tym schemacie na przyszłość.</li>
 </ul>
-<p>Pod tabelą aplikacja pokazuje <strong>różnicę</strong> względem kwoty docelowej: na zielono, gdy suma się zgadza (różnica do 50 zł jest akceptowalna), na żółto/czerwono z podpowiedzią, gdy trzeba dodać lub odjąć pół godziny.</p>
+<p>Pod tabelą aplikacja pokazuje <strong>różnicę</strong> względem kwoty docelowej: na zielono, gdy suma się zgadza (różnica do 50 zł jest akceptowalna), na żółto/czerwono z podpowiedzią, gdy trzeba dodać lub odjąć pół godziny. Godziny zawsze zaokrąglają się do pełnych połówek (0,5 h), a kwoty cząstkowe schematów do pełnych 100 zł.</p>
 <p>Gdy podział Ci odpowiada, zaznacz <span class="ui">Potwierdzam proponowany podział godzin…</span> i kliknij <span class="ui">Generuj raport →</span>.</p>
 
 <h4>Krok 3 — Podgląd raportu</h4>
 <ul>
   <li>Wpisz opcjonalnie <strong>Nr faktury / dokumentu</strong> (np. <code>FV 2026/03/001</code>).</li>
   <li>Sprawdź tabelę raportu. Poszczególne wpisy (godziny, stawki, opisy) możesz jeszcze poprawić bezpośrednio w tabeli; godziny zaokrąglają się do pełnych połówek.</li>
+  <li>Jeśli raport powstał z kilku schematów, przy każdym wpisie widnieje szara <strong>etykieta z nazwą schematu</strong>, z którego pochodzi — tak samo w widoku zapisanego raportu.</li>
   <li>Na dole widać <strong>Sumę łączną</strong> i ewentualną różnicę względem celu.</li>
 </ul>
 <p>Masz teraz dwie możliwości zapisu:</p>

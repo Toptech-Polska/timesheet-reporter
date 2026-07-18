@@ -4,17 +4,15 @@ import { useRef, useState } from "react";
 import { AlertTriangle, CheckCircle, Info, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
-import type { WizardState, EditableEntry } from "./types";
+import type { WizardState, EditableEntry, WizardSchemaPick } from "./types";
 import { ProportionTable } from "./ProportionTable";
 import {
-  generateProposals,
-  distributeHours,
-  calculateResult,
-} from "@/lib/algorithm/generator";
+  runMultiSchemaAlgorithm,
+  buildSchemaSelections,
+} from "@/lib/algorithm/multi";
 import { suggestCorrection } from "@/lib/algorithm/corrector";
 import type {
-  AlgorithmInput,
-  AlgorithmResult,
+  MultiAlgorithmResult,
   ProportionProposal,
   WorkItem,
 } from "@/lib/algorithm/types";
@@ -35,6 +33,7 @@ interface AddForm {
   category: string;
   hourly_rate: number | "";
   proportion: number | "";
+  targetSchemaId: string;
   saveToSchema: boolean;
 }
 
@@ -52,13 +51,14 @@ export function ProportionStep({
 }: ProportionStepProps) {
   const { showToast } = useToast();
 
+  const [picks, setPicks] = useState<WizardSchemaPick[]>(
+    wizardState.schema_picks
+  );
   const [proposals, setProposals] = useState<ProportionProposal[]>(
     wizardState.proposals
   );
-  const [workItems, setWorkItems] = useState(wizardState.work_items);
-  const [algorithmResult, setAlgorithmResult] = useState<AlgorithmResult | null>(
-    wizardState.algorithm_result
-  );
+  const [algorithmResult, setAlgorithmResult] =
+    useState<MultiAlgorithmResult | null>(wizardState.algorithm_result);
   const [confirmed, setConfirmed] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,13 +68,17 @@ export function ProportionStep({
     category: "",
     hourly_rate: 100,
     proportion: 1.0,
+    targetSchemaId: wizardState.schema_picks[0]?.schema_id ?? "",
     saveToSchema: false,
   });
-  const [addErrors, setAddErrors] = useState<Partial<Record<keyof AddForm, string>>>({});
+  const [addErrors, setAddErrors] = useState<
+    Partial<Record<keyof AddForm, string>>
+  >({});
   const [addSubmitting, setAddSubmitting] = useState(false);
   const [newlyAddedId, setNewlyAddedId] = useState<string | null>(null);
   const newlyAddedTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const isMulti = picks.length > 1;
   const correction = algorithmResult ? suggestCorrection(algorithmResult) : null;
 
   const usedCategories = proposals.map((p) => p.category);
@@ -82,29 +86,28 @@ export function ProportionStep({
     new Set(DEFAULT_CATEGORIES.concat(usedCategories))
   );
 
-  function recalculate(updatedWorkItems = workItems) {
+  function runEngine(updatedPicks: WizardSchemaPick[]) {
+    const selections = buildSchemaSelections(
+      updatedPicks,
+      wizardState.period_year,
+      wizardState.period_month,
+      wizardState.working_days
+    );
+    return runMultiSchemaAlgorithm({
+      target_amount: wizardState.target_amount,
+      mode: wizardState.mode,
+      schemas: selections,
+      max_hours_per_day: wizardState.max_hours_per_day,
+    });
+  }
+
+  function recalculate(updatedPicks = picks): MultiAlgorithmResult | null {
     try {
-      const input: AlgorithmInput = {
-        target_amount: wizardState.target_amount,
-        work_items: updatedWorkItems,
-        working_days: wizardState.working_days,
-        max_hours_per_day: wizardState.max_hours_per_day,
-      };
-      const newProposals = generateProposals(input);
-      const newEntries = distributeHours(
-        newProposals,
-        wizardState.working_days,
-        wizardState.max_hours_per_day
-      );
-      const newResult = calculateResult(
-        newProposals,
-        newEntries,
-        wizardState.target_amount
-      );
-      setProposals(newProposals);
-      setAlgorithmResult(newResult);
+      const result = runEngine(updatedPicks);
+      setProposals(result.proposals);
+      setAlgorithmResult(result);
       setError(null);
-      return newProposals;
+      return result;
     } catch (err) {
       setError(
         err instanceof Error ? err.message : "Błąd obliczenia proporcji."
@@ -113,18 +116,42 @@ export function ProportionStep({
     }
   }
 
+  /** Zwraca kopię picks ze zmodyfikowaną pozycją (mapowanie po id pozycji). */
+  function mapItem(
+    itemId: string,
+    fn: (item: WorkItem) => WorkItem | null
+  ): WizardSchemaPick[] {
+    return picks.map((pick) => ({
+      ...pick,
+      work_items: pick.work_items
+        .map((item) => (item.id === itemId ? fn(item) : item))
+        .filter((i): i is WorkItem => i !== null),
+    }));
+  }
+
   function handleProportionChange(itemId: string, newProportion: number) {
-    const updatedItems = workItems.map((item) =>
-      item.id === itemId ? { ...item, proportion: newProportion } : item
-    );
-    setWorkItems(updatedItems);
-    recalculate(updatedItems);
+    const updated = mapItem(itemId, (item) => ({
+      ...item,
+      proportion: newProportion,
+    }));
+    setPicks(updated);
+    recalculate(updated);
   }
 
   function handleDelete(itemId: string) {
-    const filtered = workItems.filter((item) => item.id !== itemId);
-    setWorkItems(filtered);
-    recalculate(filtered);
+    const owner = picks.find((p) =>
+      p.work_items.some((i) => i.id === itemId)
+    );
+    if (owner && owner.work_items.length <= 1) {
+      showToast(
+        `Schemat „${owner.schema_name}" musi mieć co najmniej jedną pozycję. Aby go pominąć, wróć do kroku 1 i usuń schemat z listy.`,
+        "error"
+      );
+      return;
+    }
+    const updated = mapItem(itemId, () => null);
+    setPicks(updated);
+    recalculate(updated);
   }
 
   function validateAddForm(): boolean {
@@ -141,6 +168,9 @@ export function ProportionStep({
     if (addForm.proportion === "" || Number(addForm.proportion) < 0.5) {
       errors.proportion = "Proporcja musi wynosić co najmniej 0,5";
     }
+    if (isMulti && !addForm.targetSchemaId) {
+      errors.targetSchemaId = "Wybierz schemat, do którego trafi pozycja";
+    }
     setAddErrors(errors);
     return Object.keys(errors).length === 0;
   }
@@ -150,6 +180,12 @@ export function ProportionStep({
 
     setAddSubmitting(true);
     try {
+      const targetId = isMulti
+        ? addForm.targetSchemaId
+        : picks[0]?.schema_id ?? "";
+      const targetPick = picks.find((p) => p.schema_id === targetId);
+      if (!targetPick) return;
+
       const newId = `custom_${Date.now()}`;
       const newItem: WorkItem = {
         id: newId,
@@ -161,16 +197,20 @@ export function ProportionStep({
         active_until: null,
       };
 
-      const updatedItems = [...workItems, newItem];
-      setWorkItems(updatedItems);
-      recalculate(updatedItems);
+      const updated = picks.map((pick) =>
+        pick.schema_id === targetId
+          ? { ...pick, work_items: [...pick.work_items, newItem] }
+          : pick
+      );
+      setPicks(updated);
+      recalculate(updated);
 
       if (newlyAddedTimer.current) clearTimeout(newlyAddedTimer.current);
       setNewlyAddedId(newId);
       newlyAddedTimer.current = setTimeout(() => setNewlyAddedId(null), 2000);
 
-      if (addForm.saveToSchema && wizardState.schema_id) {
-        const result = await addWorkItemToSchema(wizardState.schema_id, {
+      if (addForm.saveToSchema && targetId) {
+        const result = await addWorkItemToSchema(targetId, {
           description: newItem.description,
           category: newItem.category,
           hourly_rate: newItem.hourly_rate,
@@ -178,7 +218,7 @@ export function ProportionStep({
         });
         if ("success" in result) {
           showToast(
-            `Pozycja została dodana do schematu ${wizardState.schema_name}`,
+            `Pozycja została dodana do schematu ${targetPick.schema_name}`,
             "success"
           );
         } else {
@@ -192,6 +232,7 @@ export function ProportionStep({
         category: "",
         hourly_rate: 100,
         proportion: 1.0,
+        targetSchemaId: picks[0]?.schema_id ?? "",
         saveToSchema: false,
       });
       setAddErrors({});
@@ -203,25 +244,17 @@ export function ProportionStep({
   function handleNext() {
     if (!confirmed) return;
 
-    const entries = distributeHours(
-      proposals,
-      wizardState.working_days,
-      wizardState.max_hours_per_day
-    );
-    const result = calculateResult(
-      proposals,
-      entries,
-      wizardState.target_amount
-    );
-    setAlgorithmResult(result);
-    const editableEntries: EditableEntry[] = entries.map((e) => ({
+    const result = recalculate();
+    if (!result) return;
+
+    const editableEntries: EditableEntry[] = result.entries.map((e) => ({
       ...e,
       is_manually_edited: false,
     }));
 
     onNext({
-      work_items: workItems,
-      proposals,
+      schema_picks: picks,
+      proposals: result.proposals,
       algorithm_result: result,
       entries: editableEntries,
     });
@@ -236,10 +269,34 @@ export function ProportionStep({
 
   return (
     <div className="space-y-6">
+      {/* Tryb łączenia — informacja */}
+      {isMulti && (
+        <div className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-950/30 dark:border-blue-800 px-4 py-3">
+          <Info className="size-4 text-blue-600 shrink-0 mt-0.5" />
+          <p className="text-sm text-blue-700 dark:text-blue-300">
+            {wizardState.mode === "cascade" ? (
+              <>
+                Tryb: <strong>kaskada priorytetów</strong> — schematy wypełniają
+                raport w kolejności z kroku 1.
+              </>
+            ) : (
+              <>
+                Tryb: <strong>wagi procentowe</strong> —{" "}
+                {picks
+                  .map((p) => `${p.schema_name} ${p.weight ?? 0}%`)
+                  .join(", ")}
+                .
+              </>
+            )}
+          </p>
+        </div>
+      )}
+
       {/* Proposals table */}
       <Section title="Propozycja podziału godzin">
         <ProportionTable
           proposals={proposals}
+          groupBySchema={isMulti}
           onProportionChange={handleProportionChange}
           onDelete={handleDelete}
           newlyAddedId={newlyAddedId}
@@ -248,7 +305,7 @@ export function ProportionStep({
         {/* Inline add form */}
         <div
           className={`overflow-hidden transition-all duration-300 ${
-            showAddForm ? "max-h-[520px] opacity-100 mt-5" : "max-h-0 opacity-0"
+            showAddForm ? "max-h-[600px] opacity-100 mt-5" : "max-h-0 opacity-0"
           }`}
         >
           <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 space-y-4">
@@ -276,6 +333,38 @@ export function ProportionStep({
                 <p className="text-xs text-red-600">{addErrors.description}</p>
               )}
             </div>
+
+            {/* Schemat docelowy (tylko multi) */}
+            {isMulti && (
+              <div className="space-y-1 max-w-sm">
+                <label className="text-xs font-medium text-slate-600">
+                  Do którego schematu dodać pozycję?{" "}
+                  <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={addForm.targetSchemaId}
+                  onChange={(e) =>
+                    setAddForm((f) => ({ ...f, targetSchemaId: e.target.value }))
+                  }
+                  className={`${inputCls} ${
+                    addErrors.targetSchemaId
+                      ? "border-red-400"
+                      : "border-slate-300"
+                  }`}
+                >
+                  {picks.map((p) => (
+                    <option key={p.schema_id} value={p.schema_id}>
+                      {p.schema_name}
+                    </option>
+                  ))}
+                </select>
+                {addErrors.targetSchemaId && (
+                  <p className="text-xs text-red-600">
+                    {addErrors.targetSchemaId}
+                  </p>
+                )}
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {/* Category */}
@@ -364,23 +453,26 @@ export function ProportionStep({
               </div>
             </div>
 
-            {/* Save to schema checkbox (only when schema is selected) */}
-            {wizardState.schema_id && (
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={addForm.saveToSchema}
-                  onChange={(e) =>
-                    setAddForm((f) => ({ ...f, saveToSchema: e.target.checked }))
-                  }
-                  className="size-4 rounded border-slate-300 accent-blue-600"
-                />
-                <span className="text-sm text-slate-700">
-                  Zapisz tę pozycję do schematu{" "}
-                  <span className="font-medium">{wizardState.schema_name}</span>
+            {/* Save to schema checkbox */}
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={addForm.saveToSchema}
+                onChange={(e) =>
+                  setAddForm((f) => ({ ...f, saveToSchema: e.target.checked }))
+                }
+                className="size-4 rounded border-slate-300 accent-blue-600"
+              />
+              <span className="text-sm text-slate-700">
+                Zapisz tę pozycję do schematu{" "}
+                <span className="font-medium">
+                  {isMulti
+                    ? picks.find((p) => p.schema_id === addForm.targetSchemaId)
+                        ?.schema_name ?? ""
+                    : picks[0]?.schema_name ?? ""}
                 </span>
-              </label>
-            )}
+              </span>
+            </label>
 
             {/* Form buttons */}
             <div className="flex items-center gap-3 pt-1">
@@ -440,6 +532,18 @@ export function ProportionStep({
           </div>
         </div>
       </Section>
+
+      {/* Ostrzeżenia silnika (np. kwota nieosiągalna) */}
+      {algorithmResult && algorithmResult.warnings.length > 0 && (
+        <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3">
+          <AlertTriangle className="size-4 text-amber-600 shrink-0 mt-0.5" />
+          <div className="text-sm text-amber-700 space-y-1">
+            {algorithmResult.warnings.map((w, i) => (
+              <p key={i}>{w}</p>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Difference alert */}
       {proposals.length > 0 && (

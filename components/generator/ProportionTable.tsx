@@ -1,5 +1,6 @@
 "use client";
 
+import { Fragment } from "react";
 import { Trash2 } from "lucide-react";
 import type { ProportionProposal } from "@/lib/algorithm/types";
 import { formatPLN } from "@/lib/utils/currency";
@@ -7,6 +8,8 @@ import { formatHours } from "@/lib/utils/rounding";
 
 interface ProportionTableProps {
   proposals: ProportionProposal[];
+  /** Gdy true, wiersze grupowane nagłówkami schematów */
+  groupBySchema?: boolean;
   onProportionChange: (itemId: string, proportion: number) => void;
   onDelete: (itemId: string) => void;
   newlyAddedId?: string | null;
@@ -14,6 +17,7 @@ interface ProportionTableProps {
 
 export function ProportionTable({
   proposals,
+  groupBySchema = false,
   onProportionChange,
   onDelete,
   newlyAddedId,
@@ -21,6 +25,23 @@ export function ProportionTable({
   const totalHours = proposals.reduce((s, p) => s + p.hours_total, 0);
   const totalAmount = proposals.reduce((s, p) => s + p.amount_total, 0);
   const canDelete = proposals.length > 1;
+
+  // Grupy schematów w kolejności występowania w proposals
+  const groups: { key: string; label: string; rows: ProportionProposal[] }[] =
+    [];
+  if (groupBySchema) {
+    for (const p of proposals) {
+      const key = p.schema_id ?? "__none__";
+      let g = groups.find((x) => x.key === key);
+      if (!g) {
+        g = { key, label: p.schema_name ?? "Poza schematem", rows: [] };
+        groups.push(g);
+      }
+      g.rows.push(p);
+    }
+  } else {
+    groups.push({ key: "all", label: "", rows: proposals });
+  }
 
   return (
     <div className="overflow-x-auto">
@@ -49,7 +70,27 @@ export function ProportionTable({
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-          {proposals.map((p) => {
+          {groups.map((group) => (
+            <Fragment key={group.key}>
+              {groupBySchema && (
+                <tr className="bg-slate-50 dark:bg-slate-800/60">
+                  <td
+                    colSpan={7}
+                    className="py-2 px-1 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400"
+                  >
+                    {group.label}
+                    <span className="ml-2 normal-case font-normal tabular-nums">
+                      {formatHours(
+                        group.rows.reduce((s, p) => s + p.hours_total, 0)
+                      )}{" "}
+                      • {formatPLN(
+                        group.rows.reduce((s, p) => s + p.amount_total, 0)
+                      )}
+                    </span>
+                  </td>
+                </tr>
+              )}
+              {group.rows.map((p) => {
             const isNew = p.work_item_id === newlyAddedId;
             return (
               <tr
@@ -111,7 +152,9 @@ export function ProportionTable({
                 </td>
               </tr>
             );
-          })}
+              })}
+            </Fragment>
+          ))}
         </tbody>
         <tfoot>
           <tr className="border-t-2 border-slate-200 dark:border-slate-700">
