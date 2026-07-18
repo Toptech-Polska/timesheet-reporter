@@ -25,6 +25,39 @@
     h2.part { margin-top: 48px !important; }
   }
 
+  /* ---- Przycisk pobierania PDF (tylko ekran) ---- */
+  .pdf-download {
+    display: none;
+  }
+  @media screen {
+    .pdf-download {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 10;
+      background: #2563eb;
+      color: #fff;
+      font-size: 10pt;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, .35);
+      transition: background .15s;
+    }
+    .pdf-download:hover { background: #1d4ed8; }
+    .pdf-download svg { width: 15px; height: 15px; }
+    @media (max-width: 920px) {
+      .pdf-download { position: static; margin: 0 0 16px 0; }
+    }
+  }
+  @media print {
+    .pdf-download { display: none !important; }
+  }
+
   /* ---- Cover ---- */
   .cover {
     page-break-after: always;
@@ -105,6 +138,15 @@
 </style>
 </head>
 <body>
+
+<a class="pdf-download" href="/instrukcja.pdf" download="TimeSheet-Reporter-instrukcja.pdf">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+    <polyline points="7 10 12 15 17 10"/>
+    <line x1="12" y1="15" x2="12" y2="3"/>
+  </svg>
+  Pobierz jako PDF
+</a>
 
 <!-- ============ COVER ============ -->
 <div class="cover">
